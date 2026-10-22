@@ -9,15 +9,19 @@ description: Orchestrate end-to-end or cross-disciplinary engineering work acros
 ## First principles
 Build the smallest safe increment that solves a real problem. Preserve existing code and user edits. Inspect project instructions, repository status, runtime constraints and tests before changing files. Avoid architecture theater, speculative abstractions and undisclosed assumptions.
 
-## Select specialist skills
-- `software-engineering`: application, API, integration, performance, debugging, architecture and tests.
-- `ai-engineering`: agents, LLM prompts/tools, RAG, evals, guardrails and costs.
-- `data-engineering`: ETL/ELT, data quality, SQL, semantic metrics, BI and analysis.
-- `ui-ux-design`: UI flows, design systems, accessibility and frontend finish.
-- `fde-delivery`: client problem discovery, constraints, deployment and measurable outcomes.
-- `git-quality`: branches, commits, CI, security scans, changelog and release controls.
+## Select execution roles and skills
+Skills are reusable knowledge and procedures; agents own bounded execution. Load only the relevant skills. Use a specialist agent when its domain ownership materially improves correctness or keeps a substantial independent workstream out of the coordinator's context. For a small focused task, work directly instead of delegating.
 
-Read ONLY relevant specialists. Compose specialists for cross-cutting tasks (e.g. dashboard -> data + UI + software + Git; AI assistant -> AI + software + FDE + Git). Specialist directions never override project restrictions or human approvals.
+| Agent role | Load these skills as relevant |
+| --- | --- |
+| Software Engineer | `software-engineering`, `git-quality` |
+| AI Engineer | `ai-engineering`, `software-engineering`, `git-quality` |
+| Data Engineer | `data-engineering`, `software-engineering`, `git-quality` |
+| Design Engineer | `ui-ux-design`, `software-engineering`, `git-quality` |
+| Forward Deployed Engineer | `fde-delivery`, then the relevant domain skill and `git-quality` |
+| Quality Reviewer | `git-quality` plus only the domain skill needed to assess a change |
+
+Use one specialist for clearly owned work. Use multiple agents only for concrete, independent workstreams that can proceed without editing the same mutable files; otherwise keep the sequence with one owner. A Quality Reviewer is read-only and should review evidence after significant implementation, not repeat the implementation. Platform adapters make agent roles available where supported; when roles are unavailable, follow the same routing as the coordinating agent and load the relevant skills directly. Specialist instructions never override project restrictions or human approvals.
 
 ## Workflow (inspired by Matt Pocock's small, composable engineering skills)
 1. **Discover:** inspect repository, business context, git diff, tests and integration contracts. For an existing codebase, do not rewrite by default.

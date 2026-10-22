@@ -17,3 +17,5 @@ jobs:
           python-version: "3.12"
       - name: Validate Agent Skills
         run: python scripts/validate_skills.py
+      - name: Test agent adapter loading
+        run: python -m unittest discover -s tests -v

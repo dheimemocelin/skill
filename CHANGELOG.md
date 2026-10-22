@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Add six canonical specialist agent roles and generators for native Claude Code and Codex CLI configuration, keeping the seven existing skills as the reusable knowledge library.
+- Add adapter loading tests and platform-specific installation guidance; no agent automatically merges, deploys, or publishes.
 - Clarify activation scope for the seven skills and align the README with the `dheimemocelin/skill` repository.
 - Record verified upstream license identifiers and attribution boundaries in `SOURCES.md`.
 - Add a standard-library skill and local-link validator plus a GitHub Actions workflow.
