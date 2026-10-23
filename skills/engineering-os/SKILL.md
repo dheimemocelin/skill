@@ -10,18 +10,11 @@ description: Orchestrate end-to-end or cross-disciplinary engineering work acros
 Build the smallest safe increment that solves a real problem. Preserve existing code and user edits. Inspect project instructions, repository status, runtime constraints and tests before changing files. Avoid architecture theater, speculative abstractions and undisclosed assumptions.
 
 ## Select execution roles and skills
-Skills are reusable knowledge and procedures; agents own bounded execution. Load only the relevant skills. Use a specialist agent when its domain ownership materially improves correctness or keeps a substantial independent workstream out of the coordinator's context. For a small focused task, work directly instead of delegating.
+Skills are the single source of reusable knowledge and procedures; agent definitions own bounded execution. Load only relevant skills. The canonical mapping from agent to skill library is the `skills` metadata in `agents/<role>.md`; do not maintain a second routing table here.
 
-| Agent role | Load these skills as relevant |
-| --- | --- |
-| Software Engineer | `software-engineering`, `git-quality` |
-| AI Engineer | `ai-engineering`, `software-engineering`, `git-quality` |
-| Data Engineer | `data-engineering`, `software-engineering`, `git-quality` |
-| Design Engineer | `ui-ux-design`, `software-engineering`, `git-quality` |
-| Forward Deployed Engineer | `fde-delivery`, then the relevant domain skill and `git-quality` |
-| Quality Reviewer | `git-quality` plus only the domain skill needed to assess a change |
+The supported specialist roles are Software Engineer, AI Engineer, and Quality Reviewer. Data Engineering, UI/UX, and FDE remain available as skills, not agents. Use a specialist only when its domain ownership materially improves correctness or keeps a substantial independent workstream out of the coordinator's context. For small focused tasks, work directly. Use one specialist by default; parallel agents only for concrete, independent workstreams that will not edit the same files. Quality Reviewer performs independent review and must not repeat implementation.
 
-Use one specialist for clearly owned work. Use multiple agents only for concrete, independent workstreams that can proceed without editing the same mutable files; otherwise keep the sequence with one owner. A Quality Reviewer is read-only and should review evidence after significant implementation, not repeat the implementation. Platform adapters make agent roles available where supported; when roles are unavailable, follow the same routing as the coordinating agent and load the relevant skills directly. Specialist instructions never override project restrictions or human approvals.
+Claude Code and Codex have different native discovery, invocation, and permission models. Use the native adapter; do not infer that a role is available because its files exist. If no supported subagent mechanism is available, work directly and load only relevant skills. Agent instructions never override project restrictions or human approval requirements.
 
 ## Workflow (inspired by Matt Pocock's small, composable engineering skills)
 1. **Discover:** inspect repository, business context, git diff, tests and integration contracts. For an existing codebase, do not rewrite by default.

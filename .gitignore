@@ -21,3 +21,7 @@ venv/
 node_modules/
 dist/
 build/
+
+# Provider smoke-test transcripts, temporary projects, and local evidence
+.local-evidence/
+.smoke-runs/

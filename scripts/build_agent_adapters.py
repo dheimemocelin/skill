@@ -15,9 +15,6 @@ AGENTS = ROOT / "agents"
 EXPECTED = {
     "software-engineer",
     "ai-engineer",
-    "data-engineer",
-    "design-engineer",
-    "fde",
     "quality-reviewer",
 }
 
@@ -50,7 +47,7 @@ def parse_agent(path: Path) -> tuple[dict[str, object], str]:
             fields[key] = []
             list_key = key
     body = "\n".join(lines[end + 1 :]).strip() + "\n"
-    required = {"name", "display_name", "description", "skills", "read_only"}
+    required = {"name", "description", "skills", "read_only"}
     missing = required - fields.keys()
     if missing:
         raise ValueError(f"{path.name}: missing metadata: {', '.join(sorted(missing))}")
@@ -71,8 +68,8 @@ def toml_string(value: str) -> str:
 def render_instructions(metadata: dict[str, object], body: str) -> str:
     skills = ", ".join(f"`{skill}`" for skill in metadata["skills"])
     return (
-        f"Use the existing skills {skills} when their procedures apply. Load the relevant skill before acting; "
-        "the skill library is the source of procedures.\n\n"
+        f"The canonical skill library is available; load only the relevant skill(s) from {skills} when needed. "
+        "Do not reproduce skill procedures in this agent definition.\n\n"
         + body
     )
 
@@ -123,11 +120,13 @@ def generate(target: str, output: Path) -> list[Path]:
         codex_dir = output / ".codex"
         role_dir = codex_dir / "agents"
         for source, metadata, body in definitions:
-            role_path = role_dir / f"{source.stem}.toml"
+            # Codex requires native spawned agent identifiers to use underscores.
+            codex_name = str(metadata["name"]).replace("-", "_")
+            role_path = role_dir / f"{codex_name}.toml"
             role_path.parent.mkdir(parents=True, exist_ok=True)
             role_text = (
                 f"# Generated from the canonical definition in agents/{source.name}.\n"
-                f"name = {toml_string(str(metadata['name']))}\n"
+                f"name = {toml_string(codex_name)}\n"
                 f"description = {toml_string(str(metadata['description']))}\n"
                 f"developer_instructions = {toml_string(render_instructions(metadata, body))}\n"
             )

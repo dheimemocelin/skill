@@ -1,6 +1,6 @@
 # Engineering OS — Modular Agent Skills
 
-A modular engineering system with seven reusable Agent Skills and six specialized agent roles. Agents define who handles a task; skills supply reusable knowledge and procedures. Load only the agent and skills relevant to the task.
+A modular engineering system with seven reusable Agent Skills and three specialized agent roles. Agents define bounded execution responsibility; skills supply reusable knowledge and procedures. Load only the agent and skills relevant to the task.
 
 ## Skills
 
@@ -22,10 +22,9 @@ Canonical, vendor-neutral role definitions live in `agents/`. They define respon
 | --- | --- |
 | `software-engineer` | Application and API behavior, implementation, reliability |
 | `ai-engineer` | LLM applications, agents, retrieval, evaluation |
-| `data-engineer` | Data pipelines, SQL, metrics, analytics, BI |
-| `design-engineer` | Product flows, frontend, accessibility, visual quality |
-| `fde` | Field discovery, integrations, measurable delivery, handoff |
 | `quality-reviewer` | Independent, read-only evidence-based review |
+
+Data Engineering, UI/UX, and FDE remain available through their skills and do not have agent roles in this release. The `skills` metadata in each canonical agent definition is the only agent-to-skill mapping.
 
 Adapter instructions live in `adapters/`. Generated files are disposable; edit only `agents/` and `skills/`.
 
@@ -43,7 +42,7 @@ New-Item -ItemType Directory -Force "$HOME/.claude/skills" | Out-Null
 Copy-Item -Recurse -Path "./skills/*" -Destination "$HOME/.claude/skills/"
 ```
 
-For project-scoped installation, use `<project>/.agents/skills` for Codex or `<project>/.claude/skills` for Claude Code. Merge `templates/AGENTS.md` and `templates/CLAUDE.md` with existing project guidance; do not replace project instructions wholesale.
+For project-scoped installation, use `<project>/.agents/skills` for Codex or `<project>/.claude/skills` for Claude Code. Merge `templates/AGENTS.md` and `templates/CLAUDE.md` with existing project guidance; do not replace project instructions wholesale. Agent adapters must also be installed in each provider's native project location as documented below.
 
 ## Generate agent adapters
 
@@ -54,7 +53,7 @@ python scripts/build_agent_adapters.py --target claude --output ./.generated-cla
 python scripts/build_agent_adapters.py --target codex --output ./.generated-codex
 ```
 
-Follow [Claude Code adapter instructions](adapters/claude/README.md) or [Codex adapter instructions](adapters/codex/README.md) to install. Claude Code loads project subagents from `.claude/agents/`; Codex CLI loads project custom agents from `.codex/agents/`. Claude's Quality Reviewer gets a read-only tool allowlist. Codex custom agents inherit their parent session's sandbox, so run the reviewer in a read-only session when enforcement is needed. No adapter performs merge, deploy, or publication actions.
+Follow [Claude Code adapter instructions](adapters/claude/README.md) or [Codex adapter instructions](adapters/codex/README.md) to install. Claude Code loads project subagents from `.claude/agents/`; Codex CLI loads project custom agents from `.codex/agents/`. Claude's Quality Reviewer gets a read-only tool allowlist; Codex custom agents inherit their parent's sandbox, so the reviewer must run in a read-only parent session for enforcement. These mechanisms are not equivalent. No adapter performs merge, deploy, or publication actions.
 
 ## Validate
 
@@ -64,6 +63,8 @@ Structural validation uses Python 3.10 or later and only the standard library. A
 python scripts/validate_skills.py
 python -m unittest discover -s tests -v
 ```
+
+Provider smoke tests use the actual installed CLIs and isolated fixtures. Run `python scripts/run_agent_smoke_tests.py --provider codex` or `--provider claude`; provider absence/authentication failure is reported as unexecuted, never passed. Local transcripts and raw logs are written under `.local-evidence/` and must not be committed. See `tests/evidence/README.md` for evidence policy and limits.
 
 The validator checks the seven expected skill directories, required frontmatter fields, names, descriptions, and local Markdown links. GitHub Actions runs it on pushes and pull requests.
 
