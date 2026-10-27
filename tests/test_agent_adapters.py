@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import sys
+import os
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,7 +15,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover - runtime requirement
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_agent_adapters import EXPECTED, generate, parse_agent  # noqa: E402
-from run_agent_smoke_tests import dispatches, provider_quota_blocked, skill_events  # noqa: E402
+from run_agent_smoke_tests import codex_token_usage, dispatches, provider_quota_blocked, skill_events  # noqa: E402
 
 
 class AgentAdapterLoadingTests(unittest.TestCase):
@@ -32,6 +34,54 @@ class AgentAdapterLoadingTests(unittest.TestCase):
         self.assertFalse(provider_quota_blocked('{"type":"assistant","text":"implement rate limiting"}', ""))
         self.assertTrue(provider_quota_blocked('{"type":"error","message":"You have hit your usage limit"}', ""))
         self.assertTrue(provider_quota_blocked("", "rate limit exceeded"))
+
+    def test_codex_usage_aggregates_parent_and_child_without_duplicate_responses(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            sessions = home / "sessions" / "2026" / "10" / "27"
+            sessions.mkdir(parents=True)
+            thread_id = "thread-fixture"
+            parent = sessions / f"rollout-{thread_id}.jsonl"
+            child = sessions / "agent-fixture.jsonl"
+
+            def usage(response_id: str, input_tokens: int, cached_tokens: int, output_tokens: int) -> str:
+                values = {
+                    "input_tokens": input_tokens,
+                    "cached_input_tokens": cached_tokens,
+                    "cache_write_input_tokens": 0,
+                    "output_tokens": output_tokens,
+                    "reasoning_output_tokens": 0,
+                    "total_tokens": input_tokens + output_tokens,
+                }
+                return json.dumps({"type": "token_usage_record", "payload": {"response_id": response_id, "usage": values}})
+
+            parent.write_text(usage("response-1", 100, 40, 20) + "\n", encoding="utf-8")
+            child.write_text(
+                json.dumps({"type": "session_meta", "payload": {"parent_thread_id": thread_id}})
+                + "\n"
+                + usage("response-1", 100, 40, 20)
+                + "\n"
+                + usage("response-2", 80, 20, 10)
+                + "\n",
+                encoding="utf-8",
+            )
+
+            previous = os.environ.get("CODEX_HOME")
+            os.environ["CODEX_HOME"] = str(home)
+            try:
+                result = codex_token_usage(json.dumps({"type": "thread.started", "thread_id": thread_id}))
+            finally:
+                if previous is None:
+                    os.environ.pop("CODEX_HOME", None)
+                else:
+                    os.environ["CODEX_HOME"] = previous
+
+        self.assertEqual(result["input_tokens"], 180)
+        self.assertEqual(result["cached_input_tokens"], 60)
+        self.assertEqual(result["uncached_input_tokens"], 120)
+        self.assertEqual(result["output_tokens"], 30)
+        self.assertEqual(result["total_tokens"], 210)
+        self.assertEqual(result["model_responses"], 2)
 
     def test_claude_agents_and_skills_are_discoverable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -66,7 +116,23 @@ class AgentAdapterLoadingTests(unittest.TestCase):
         )
         router = (ROOT / "skills" / "engineering-os" / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("| Agent role | Load these skills", router)
-        self.assertIn("canonical mapping", router)
+        self.assertIn("canonical agent-to-skill mapping", router)
+
+    def test_engineering_os_is_compact_without_losing_routing_or_guardrails(self) -> None:
+        router = (ROOT / "skills" / "engineering-os" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertLessEqual(len(router.split()), 320)
+        for requirement in (
+            "cross-disciplinary",
+            "canonical agent-to-skill mapping",
+            "Load only skills needed",
+            "Default to direct work or one specialist",
+            "observable acceptance criteria",
+            "focused checks",
+            "secure defaults",
+            "Human approval is required",
+            "Never expose secrets or claim unrun checks",
+        ):
+            self.assertIn(requirement.casefold(), router.casefold())
 
     def test_generator_refuses_existing_unmarked_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

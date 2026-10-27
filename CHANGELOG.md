@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Reduce the Engineering OS router context while preserving routing, delegation, verification, and safety criteria; extend smoke evidence with exact skill activation and Codex token-usage counters.
 - Restrict canonical specialist roles to Software Engineer, AI Engineer, and Quality Reviewer; keep all seven skills as the reusable knowledge library.
 - Map canonical hyphenated agent IDs to native underscore identifiers in generated Codex configuration.
 - Add provider smoke-test runner and evidence policy for real Claude Code and Codex CLI discovery, activation, and execution checks.

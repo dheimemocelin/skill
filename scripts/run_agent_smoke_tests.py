@@ -26,6 +26,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / ".local-evidence" / "agent-smoke"
 CODEX_PACKAGE = os.environ.get("CODEX_MANAGED_PACKAGE_ROOT")
 CODEX_JS = Path(CODEX_PACKAGE) / "bin" / "codex.js" if CODEX_PACKAGE else None
+ALL_SKILLS = tuple(sorted(path.parent.name for path in (ROOT / "skills").glob("*/SKILL.md")))
+SKILL_OVERRIDES: dict[str, Path] = {}
 
 
 @dataclass(frozen=True)
@@ -34,17 +36,19 @@ class Case:
     agent: str | None
     prompt: str
     files: dict[str, str]
-    checks: dict[str, str]
+    checks: dict[str, str | tuple[str, ...]]
     unchanged: bool = False
     commands: tuple[tuple[str, ...], ...] = ()
     output_contains: tuple[str, ...] = ()
+    skills: tuple[str, ...] = ()
 
 
 CASES = (
-    Case("feature", "software-engineer", "Use the configured software-engineer specialist and explicitly activate `$software-engineering` to implement this feature. In calculator.py add subtract(a, b), and add a unittest in test_calculator.py that verifies subtract(9, 4) == 5. Keep the change minimal and run the test.", {"calculator.py": "def add(a, b):\n    return a + b\n", "test_calculator.py": "import unittest\nfrom calculator import add\n\nclass CalculatorTests(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n"}, {"calculator.py": "def subtract(a, b):", "test_calculator.py": "subtract(9, 4)"}, commands=((sys.executable, "-B", "-m", "unittest", "test_calculator.py"),)),
-    Case("bug-fix", "software-engineer", "Use the configured software-engineer specialist and explicitly activate `$software-engineering` to diagnose and fix this bug. The multiply function is intended to multiply but is wrong. Correct calculator.py, add a regression test in test_calculator.py, and run the test.", {"calculator.py": "def multiply(a, b):\n    return a + b\n", "test_calculator.py": "import unittest\nfrom calculator import multiply\n\nclass CalculatorTests(unittest.TestCase):\n    def test_multiply(self):\n        self.assertEqual(multiply(3, 4), 12)\n"}, {"calculator.py": "return a * b", "test_calculator.py": "self.assertEqual(multiply(3, 4), 12)"}, commands=((sys.executable, "-B", "-m", "unittest", "test_calculator.py"),)),
-    Case("llm-agent", "ai-engineer", "Use the configured ai-engineer specialist and explicitly activate `$ai-engineering` and `$software-engineering`. Implement a small model-backed sentiment agent in sentiment_agent.py using an injected client protocol with classify(text); do not call a real provider. Add a unittest using a fake client that verifies delegation to the injected client and its result.", {"sentiment_agent.py": "", "test_sentiment_agent.py": ""}, {"sentiment_agent.py": "class SentimentAgent", "test_sentiment_agent.py": "FakeClient"}, commands=((sys.executable, "-B", "-m", "unittest", "test_sentiment_agent.py"),)),
-    Case("review", "quality-reviewer", "Use the configured quality reviewer specialist. Explicitly activate `$git-quality` to review this code read-only. Identify the correctness/security issue with file and line evidence. Do not edit any file.", {"auth.py": "API_KEY = 'placeholder-secret-for-review-fixture'\n\ndef authorize(user):\n    return True\n"}, {"auth.py": ""}, unchanged=True, output_contains=("auth.py", "authorize")),
+    Case("feature", "software-engineer", "Use the configured software-engineer specialist and explicitly activate `$software-engineering` to implement this feature. In calculator.py add subtract(a, b), and add a unittest in test_calculator.py that verifies subtract(9, 4) == 5. Keep the change minimal and run the test.", {"calculator.py": "def add(a, b):\n    return a + b\n", "test_calculator.py": "import unittest\nfrom calculator import add\n\nclass CalculatorTests(unittest.TestCase):\n    def test_add(self):\n        self.assertEqual(add(2, 3), 5)\n"}, {"calculator.py": "def subtract(a, b):", "test_calculator.py": "subtract(9, 4)"}, commands=((sys.executable, "-B", "-m", "unittest", "test_calculator.py"),), skills=("software-engineering",)),
+    Case("bug-fix", "software-engineer", "Use the configured software-engineer specialist and explicitly activate `$software-engineering` to diagnose and fix this bug. The multiply function is intended to multiply but is wrong. Correct calculator.py, add a regression test in test_calculator.py, and run the test.", {"calculator.py": "def multiply(a, b):\n    return a + b\n", "test_calculator.py": "import unittest\nfrom calculator import multiply\n\nclass CalculatorTests(unittest.TestCase):\n    def test_multiply(self):\n        self.assertEqual(multiply(3, 4), 12)\n"}, {"calculator.py": "return a * b", "test_calculator.py": "self.assertEqual(multiply(3, 4), 12)"}, commands=((sys.executable, "-B", "-m", "unittest", "test_calculator.py"),), skills=("software-engineering",)),
+    Case("llm-agent", "ai-engineer", "Use the configured ai-engineer specialist and explicitly activate `$ai-engineering` and `$software-engineering`. Implement a small model-backed sentiment agent in sentiment_agent.py using an injected client protocol with classify(text); do not call a real provider. Add a unittest using a fake client that verifies delegation to the injected client and its result.", {"sentiment_agent.py": "", "test_sentiment_agent.py": ""}, {"sentiment_agent.py": "class SentimentAgent", "test_sentiment_agent.py": "FakeClient"}, commands=((sys.executable, "-B", "-m", "unittest", "test_sentiment_agent.py"),), skills=("ai-engineering", "software-engineering")),
+    Case("review", "quality-reviewer", "Use the configured quality reviewer specialist. Explicitly activate `$git-quality` to review this code read-only. Identify the correctness/security issue with file and line evidence. Do not edit any file.", {"auth.py": "API_KEY = 'placeholder-secret-for-review-fixture'\n\ndef authorize(user):\n    return True\n"}, {"auth.py": ""}, unchanged=True, output_contains=("auth.py", "authorize"), skills=("git-quality",)),
+    Case("cross-discipline", None, "Use `$engineering-os` to coordinate this small cross-discipline task. Activate `$software-engineering` for the API contract and `$ui-ux-design` for accessible dashboard states. Update api.md with a GET /health contract returning HTTP 200 and healthy/unavailable status; update dashboard.md with clear healthy/unavailable states and a live status region marked aria-live. This is a bounded two-file documentation change; work directly and do not delegate. Verify both files.", {"api.md": "# API\n\nHealth endpoint: TBD.\n", "dashboard.md": "# Dashboard\n\nHealth indicator: TBD.\n"}, {"api.md": ("GET /health", "200", "healthy", "unavailable"), "dashboard.md": ("aria-live", "healthy", "unavailable")}, skills=("engineering-os", "software-engineering", "ui-ux-design")),
     Case("concept", None, "In one short paragraph, explain what idempotent means in software. Do not delegate." , {}, {}),
     Case("explain-code", None, "Explain what this function does in one sentence: def add(a, b): return a + b. Do not delegate.", {}, {}),
     Case("docs-typo", None, "In README.md, change only the word 'recieve' to 'receive'. Do this tiny documentation fix directly without delegation.", {"README.md": "# Fixture\n\nPlease recieve this.\n"}, {"README.md": "Please receive this."}),
@@ -187,7 +191,8 @@ def codex_trace_evidence(stdout: str, skills: list[str]) -> tuple[list[str], lis
         if path == parent:
             continue
         try:
-            first = json.loads(path.open(encoding="utf-8").readline())
+            with path.open(encoding="utf-8") as session_file:
+                first = json.loads(session_file.readline())
         except (OSError, json.JSONDecodeError):
             continue
         meta = first.get("payload", {})
@@ -226,6 +231,58 @@ def codex_trace_evidence(stdout: str, skills: list[str]) -> tuple[list[str], lis
     return role_names, activated
 
 
+def codex_token_usage(stdout: str) -> dict[str, int] | None:
+    """Aggregate native per-response Codex usage counters without retaining session text."""
+    events = event_records("codex", stdout)
+    thread_id = next((event.get("thread_id") for event in events if event.get("type") == "thread.started"), None)
+    if not isinstance(thread_id, str):
+        return None
+    session_root = Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex"))) / "sessions"
+    parent_files = list(session_root.rglob(f"*-{thread_id}.jsonl")) if session_root.exists() else []
+    if len(parent_files) != 1:
+        return None
+    parent = parent_files[0]
+    trace_files = [parent]
+    for path in parent.parent.glob("*.jsonl"):
+        if path == parent:
+            continue
+        try:
+            with path.open(encoding="utf-8") as session_file:
+                first = json.loads(session_file.readline())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if first.get("payload", {}).get("parent_thread_id") == thread_id:
+            trace_files.append(path)
+    fields = ("input_tokens", "cached_input_tokens", "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens", "total_tokens")
+    totals = {field: 0 for field in fields}
+    response_ids: set[str] = set()
+    for path in trace_files:
+        try:
+            lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if record.get("type") != "token_usage_record":
+                continue
+            payload = record.get("payload", {})
+            response_id = payload.get("response_id")
+            if not isinstance(response_id, str) or response_id in response_ids:
+                continue
+            response_ids.add(response_id)
+            usage = payload.get("usage", {})
+            for field in fields:
+                totals[field] += int(usage.get(field, 0) or 0)
+    if not response_ids:
+        return None
+    totals["model_responses"] = len(response_ids)
+    totals["uncached_input_tokens"] = max(0, totals["input_tokens"] - totals["cached_input_tokens"])
+    return totals
+
+
 def prepare_workspace(provider: str, case: Case, workspace: Path) -> tuple[dict[str, str], dict[str, str]]:
     for name, content in case.files.items():
         path = workspace / name
@@ -240,6 +297,10 @@ def prepare_workspace(provider: str, case: Case, workspace: Path) -> tuple[dict[
         if source.exists():
             shutil.copytree(source, workspace / native, dirs_exist_ok=True)
     shutil.rmtree(staging)
+    native_skill_root = workspace / (".claude" if provider == "claude" else ".agents") / "skills"
+    for skill_name, override_path in SKILL_OVERRIDES.items():
+        destination = native_skill_root / skill_name / "SKILL.md"
+        shutil.copyfile(override_path, destination)
     init = run(["git", "init", "-q"], cwd=workspace)
     if init.returncode:
         raise RuntimeError("Unable to initialize isolated fixture Git project")
@@ -317,13 +378,18 @@ def run_case(provider: str, case: Case, evidence_dir: Path, timeout: int) -> dic
         events = event_records(provider, result.stdout)
         invoked = dispatches(provider, events)
         skill_activated = skill_events(provider, events)
+        token_usage = None
         if provider == "codex":
-            codex_roles, codex_skills = codex_trace_evidence(result.stdout, [str(s) for s in parse_agent(ROOT / "agents" / f"{case.agent}.md")[0]["skills"]] if case.agent else [])
+            codex_roles, codex_skills = codex_trace_evidence(result.stdout, list(ALL_SKILLS))
             invoked.extend(codex_roles)
             skill_activated.extend(codex_skills)
+            token_usage = codex_token_usage(result.stdout)
         final = snapshot(workspace)
         fixture_final = {name: final.get(name) for name in case.files}
-        checks = {name: expected in (workspace / name).read_text(encoding="utf-8") for name, expected in case.checks.items()}
+        checks = {
+            name: all(expected in (workspace / name).read_text(encoding="utf-8") for expected in (requirements if isinstance(requirements, tuple) else (requirements,)))
+            for name, requirements in case.checks.items()
+        }
         unchanged = all(initial.get(name) == final.get(name) for name in case.files)
         validations = []
         for validation in case.commands:
@@ -332,16 +398,20 @@ def run_case(provider: str, case: Case, evidence_dir: Path, timeout: int) -> dic
         response_contains = {text: text.casefold() in result.stdout.casefold() for text in case.output_contains}
         expected_dispatch = case.agent is None or any(case.agent in role for role in invoked)
         unexpected_dispatch = case.agent is None and bool(invoked)
-        execution_ok = all(checks.values()) and all(item["exit_code"] == 0 for item in validations) and all(response_contains.values()) and (not case.unchanged or unchanged)
+        skill_routing_ok = set(skill_activated) == set(case.skills)
+        execution_ok = all(checks.values()) and all(item["exit_code"] == 0 for item in validations) and all(response_contains.values()) and (not case.unchanged or unchanged) and skill_routing_ok
         passed = result.returncode == 0 and expected_dispatch and not unexpected_dispatch and execution_ok
         return {
             "case": case.name,
             "result": "passed" if passed else "failed",
             "exit_code": result.returncode,
             "expected_agent": case.agent,
+            "expected_skill_activations": list(case.skills),
             "structured_agent_dispatches": invoked,
             "structured_skill_activations": skill_activated,
+            "skill_routing_match": skill_routing_ok,
             "skill_event_visibility": "observable" if skill_activated else "no_structured_skill_event_observed",
+            "codex_token_usage": token_usage,
             "checks": checks,
             "independent_fixture_validations": validations,
             "review_output_checks": response_contains,
@@ -358,8 +428,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--provider", choices=("claude", "codex", "all"), required=True)
     parser.add_argument("--timeout", type=int, default=180)
-    parser.add_argument("--case", action="append", choices=[case.name for case in CASES], help="Run selected case(s); defaults to all eight")
+    parser.add_argument("--case", action="append", choices=[case.name for case in CASES], help="Run selected case(s); defaults to all nine")
+    parser.add_argument("--skill-override", action="append", default=[], metavar="NAME=PATH", help="Replace one generated fixture skill file for an A/B test")
     args = parser.parse_args()
+    global SKILL_OVERRIDES
+    SKILL_OVERRIDES = {}
+    for item in args.skill_override:
+        name, separator, path_text = item.partition("=")
+        override_path = Path(path_text).resolve()
+        if not separator or name not in ALL_SKILLS or not override_path.is_file():
+            parser.error(f"invalid skill override {item!r}; use an existing file and skill name")
+        SKILL_OVERRIDES[name] = override_path
     providers = ["claude", "codex"] if args.provider == "all" else [args.provider]
     selected = [case for case in CASES if not args.case or case.name in args.case]
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -402,9 +481,10 @@ def main() -> int:
         provider_failed = any(outcome.get("result") == "failed" for outcome in outcomes)
         failed = failed or provider_failed
         provider_status = "failed" if provider_failed else "blocked" if provider_blocked else "passed"
-        summary["providers"][provider] = {"status": provider_status, "version": version, "installed_configuration": "generated native project adapter", "cases": outcomes}
+        override_hashes = {name: sha256(path) for name, path in SKILL_OVERRIDES.items()}
+        summary["providers"][provider] = {"status": provider_status, "version": version, "installed_configuration": "generated native project adapter", "skill_override_sha256": override_hashes, "cases": outcomes}
     summary["finished_utc"] = datetime.now(timezone.utc).isoformat()
-    summary["limits"] = ["Claude activation uses native structured tool events; Codex role activation uses session agent_role metadata and skill activation requires the exact installed skill body in session records.", "Provider model answers are retained only in ignored local transcripts."]
+    summary["limits"] = ["Claude activation uses native structured tool events; Codex role activation uses session agent_role metadata and skill activation requires the exact installed skill body in session records.", "Codex token counters aggregate the whole provider session across parent and child runs; they do not isolate an individual skill.", "Provider model answers are retained only in ignored local transcripts."]
     (run_root / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
     if failed:
