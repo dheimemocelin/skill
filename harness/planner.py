@@ -52,16 +52,21 @@ def normalize(plan):
             fields(action, {"kind", "fail_until", "delay_seconds"}, {"kind"})
             bounded(action.get("fail_until", 0), 0, 5, True)
             bounded(action.get("delay_seconds", 0), 0, 60)
+        elif action.get("kind") == "codex":
+            fields(action, {"kind", "prompt"}, {"kind", "prompt"})
+            text(action["prompt"], "Codex task")
+            if raw.get("idempotent", False) is not False:
+                raise HarnessError("Codex steps require explicit confirmation before any replay")
         else:
-            raise HarnessError("Supported actions: file_exists (real local inspection), fixture (test only)")
+            raise HarnessError("Supported actions: file_exists, fixture (test only), codex (opt-in read-only)")
         route(raw.get("skills", []), raw.get("agent"))
         if type(raw.get("idempotent", True)) is not bool:
             raise HarnessError("idempotent must be boolean")
         steps.append({
             "id": sid, "action": dict(action), "depends_on": deps,
             "skills": raw.get("skills", []), "agent": raw.get("agent"),
-            "idempotent": raw.get("idempotent", True),
-            "max_attempts": bounded(raw.get("max_attempts", 2), 1, 5, True),
+            "idempotent": raw.get("idempotent", action["kind"] != "codex"),
+            "max_attempts": bounded(raw.get("max_attempts", 1 if action["kind"] == "codex" else 2), 1, 5, True),
             "timeout_seconds": bounded(raw.get("timeout_seconds", 10), 0.05, 300),
         })
         seen.add(sid)

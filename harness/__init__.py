@@ -1,3 +1,3 @@
-"""Optional, standard-library Engineering Harness Lite. No provider calls."""
+"""Optional standard-library Harness; provider calls require explicit authorization."""
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

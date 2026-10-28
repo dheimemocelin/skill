@@ -22,6 +22,8 @@ def main(argv=None):
         command = sub.add_parser(name)
         command.add_argument("task_id")
         command.add_argument("--allow-tests", action="store_true", help="Authorize execution of trusted local test code for this invocation")
+        command.add_argument("--allow-codex", action="store_true", help="Authorize one paid read-only Codex invocation per pending step")
+        command.add_argument("--codex-bin", type=Path, help="Trusted native Codex executable or installed bin/codex.js; never a shell command")
         from .node_gates import PROFILES
         command.add_argument("--test-profile", choices=sorted(PROFILES), action="append", help="Restrict authorized Node profiles (repeatable)")
         if name == "resume":
@@ -37,7 +39,7 @@ def main(argv=None):
         if command == "create":
             task = harness.create(args.request, json.loads(args.plan.read_text(encoding="utf-8")))
         elif command in {"run", "resume"}:
-            task = harness.run(args.task_id, resume=command == "resume", confirmed=getattr(args, "confirm_retry", ()), allow_tests=args.allow_tests, test_profiles=args.test_profile, confirmed_gates=getattr(args, "confirm_gate", ()))
+            task = harness.run(args.task_id, resume=command == "resume", confirmed=getattr(args, "confirm_retry", ()), allow_tests=args.allow_tests, test_profiles=args.test_profile, confirmed_gates=getattr(args, "confirm_gate", ()), allow_codex=args.allow_codex, codex_bin=args.codex_bin)
         elif command == "cancel":
             task = harness.cancel(args.task_id)
         elif command == "note":

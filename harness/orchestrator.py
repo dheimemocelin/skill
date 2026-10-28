@@ -43,10 +43,12 @@ class Orchestrator:
             self.context.save(task)
             return task
 
-    def run(self, task_id, *, resume=False, confirmed=(), allow_tests=False, test_profiles=None, confirmed_gates=()):
+    def run(self, task_id, *, resume=False, confirmed=(), allow_tests=False, test_profiles=None, confirmed_gates=(), allow_codex=False, codex_bin=None):
         with self.context.lock():
             task = self.context.load(task_id)
             confirmations = set(confirmed)
+            if not set(confirmed_gates).issubset({g["id"] for g in task["plan"]["gates"]}):
+                raise HarnessError("Unknown gate confirmation")
             if resume:
                 recover(task, confirmations)
             elif task["state"] != "pending":
@@ -56,7 +58,7 @@ class Orchestrator:
             transition(task, "running")
             self.context.save(task)
             try:
-                return self._execute(task, confirmations, allow_tests, test_profiles, set(confirmed_gates))
+                return self._execute(task, confirmations, allow_tests, test_profiles, set(confirmed_gates), allow_codex, codex_bin)
             except KeyboardInterrupt:
                 event(task, "interrupted", reason="Inspect outstanding processes before resume")
                 transition(task, "blocked")
@@ -69,11 +71,29 @@ class Orchestrator:
         self.context.save(task)
         return task
 
-    def _execute(self, task, confirmations, allow_tests, test_profiles=None, confirmed_gates=()):
+    def _execute(self, task, confirmations, allow_tests, test_profiles=None, confirmed_gates=(), allow_codex=False, codex_bin=None):
         for spec in task["plan"]["steps"]:
             sid, state = spec["id"], task["steps"][spec["id"]]
             if state["status"] == "completed":
                 continue
+            executor = self.executor
+            if spec["action"]["kind"] == "codex":
+                if not allow_codex:
+                    return self._stop(task, "blocked", "codex_requires_allow_codex", sid)
+                from .codex import CodexExecutor
+                def checkpoint(metadata):
+                    event(task, "provider_session", step=sid, **metadata)
+                    self.context.save(task)
+                executor = CodexExecutor(codex_bin, checkpoint)
+                reason = retry_allowed(spec, state, confirmations)
+                if reason:
+                    return self._stop(task, "failed" if reason == "attempt_limit" else "blocked", reason, sid)
+                try:
+                    reason = executor.preflight(self.context.workspace)
+                except Exception:
+                    reason = "codex_preflight_failed"
+                if reason:
+                    return self._stop(task, "blocked", reason, sid)
             while state["status"] != "completed":
                 reason = retry_allowed(spec, state, confirmations)
                 if reason:
@@ -83,15 +103,19 @@ class Orchestrator:
                 event(task, "step_started", step=sid, attempt=state["attempts"])
                 self.context.save(task)
                 try:
-                    result = self.executor.execute(spec, relevant_context(task, spec), self.context.workspace, state["attempts"])
+                    result = executor.execute(spec, relevant_context(task, spec), self.context.workspace, state["attempts"])
                     validate_result(result)
                 except Exception:
                     # Exceptions/output may contain secrets; keep classification only.
                     result = {"ok": False, "failure": "execution", "executor": "error"}
+                    if spec["action"]["kind"] == "codex":
+                        result.update(uncertain=True, termination_confirmed=False)
                 state["evidence"].append(result)
                 state.update(status="completed" if result["ok"] else "failed", failure=result["failure"])
                 event(task, "step_finished", step=sid, attempt=state["attempts"], ok=result["ok"])
                 self.context.save(task)
+                if spec["action"]["kind"] == "codex" and not result["ok"]:
+                    return self._stop(task, "blocked" if result.get("uncertain") else "failed", "codex_outcome_requires_inspection", sid)
         transition(task, "validating")
         self.context.save(task)
         # Recheck all acceptance gates on resume; completed steps are never rerun.
@@ -108,6 +132,8 @@ class Orchestrator:
                 result = evaluate(gate, task, self.context.workspace, allow_tests, test_profiles)
             except Exception:
                 result = {"status": "failed", "reason": "gate_execution_error"}
+                if gate["kind"] in {"tests", "node"}:
+                    result.update(status="blocked", termination_confirmed=False)
             task["gates"][gate["id"]] = result
             event(task, "gate_finished", gate=gate["id"], status=result["status"])
             self.context.save(task)

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add Harness Lite v1.1 optional read-only Codex CLI execution with explicit cost authorization, JSONL metadata, session checkpoints and no automatic replay; real Windows smoke passed on CLI 0.159.0.
 - Extend Harness gates with explicit local Node profiles, per-invocation authorization, bounded process trees and conservative interrupted-gate recovery; preserve v1 plans.
 - Add optional Engineering Harness Lite v1: serial local execution, versioned atomic checkpoints, bounded retries, conservative recovery, opt-in test gates, and a deterministic fixture executor; no native provider integration is claimed.
 - Add bounded, severity-based read-only review rounds; optional authorized PR/CI handoff; and evidence-based continuation of existing work, informed by TStack principles.

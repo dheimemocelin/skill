@@ -9,18 +9,18 @@ from typing import Protocol
 
 
 def validate_result(result):
-    allowed = {"ok", "failure", "executor", "exists", "sha256", "synthetic", "exit_code", "timeout", "seconds", "reason", "termination_confirmed", "output_truncated"}
+    allowed = {"ok", "failure", "executor", "exists", "sha256", "synthetic", "exit_code", "timeout", "seconds", "reason", "termination_confirmed", "output_truncated", "session_id", "provider_version", "turn_completed", "provider_error", "command_events", "input_tokens", "cached_input_tokens", "output_tokens", "uncertain"}
     if not isinstance(result, dict) or set(result) - allowed or not {"ok", "failure", "executor"}.issubset(result):
         raise ValueError("Invalid executor evidence")
     if type(result["ok"]) is not bool or result["failure"] not in {None, "execution", "timeout"}:
         raise ValueError("Invalid result status")
     if result["ok"] != (result["failure"] is None):
         raise ValueError("Inconsistent result")
-    if result["executor"] not in {"builtin", "local-file", "deterministic-fixture", "error"}:
+    if result["executor"] not in {"builtin", "local-file", "deterministic-fixture", "error", "codex-cli"}:
         raise ValueError("Unregistered executor")
     if "reason" in result and result["reason"] != "file_too_large":
         raise ValueError("Unknown result reason")
-    for key in {"exists", "synthetic", "timeout", "termination_confirmed", "output_truncated"} & result.keys():
+    for key in {"exists", "synthetic", "timeout", "termination_confirmed", "output_truncated", "turn_completed", "provider_error", "uncertain"} & result.keys():
         if type(result[key]) is not bool:
             raise ValueError("Invalid result flag")
     if "exit_code" in result and type(result["exit_code"]) is not int:
@@ -29,6 +29,15 @@ def validate_result(result):
         raise ValueError("Invalid duration")
     if "sha256" in result and (not isinstance(result["sha256"], str) or len(result["sha256"]) != 64 or any(c not in "0123456789abcdef" for c in result["sha256"])):
         raise ValueError("Invalid digest")
+    import re
+    for key, pattern in (("session_id", r"[a-f0-9-]{32,36}"), ("provider_version", r"[0-9]+\.[0-9]+\.[0-9]+[-.a-zA-Z0-9]*")):
+        if key in result and result[key] is not None and (not isinstance(result[key], str) or not re.fullmatch(pattern, result[key])):
+            raise ValueError("Invalid provider metadata")
+    for key in {"command_events", "input_tokens", "cached_input_tokens", "output_tokens"} & result.keys():
+        if type(result[key]) is not int or not 0 <= result[key] < 10**12:
+            raise ValueError("Invalid provider count")
+    if result["executor"] == "codex-cli" and result["ok"] and (not result.get("turn_completed") or result.get("uncertain") or result.get("provider_error") or result.get("exit_code") != 0 or not result.get("termination_confirmed")):
+        raise ValueError("Codex success lacks terminal evidence")
     return result
 
 
@@ -37,7 +46,7 @@ class Executor(Protocol):
         """Return JSON evidence with ok/failure/executor; enforce spec timeout.
 
         Implementations must not persist credentials or raw provider output. Native
-        provider permissions remain authoritative. v1 registers only BuiltinExecutor.
+        provider permissions remain authoritative. Codex is an opt-in implementation.
         """
         ...
 

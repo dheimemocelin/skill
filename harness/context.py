@@ -149,6 +149,11 @@ class ContextManager:
                 if step["status"] != "running":
                     step["attempts"] = min(spec["max_attempts"], step["attempts"] + 1)
                 step.update(status="failed", failure="interrupted")
+        if task["state"] not in {"completed", "cancelled"}:
+            for gate in task["plan"]["gates"]:
+                if gate["kind"] in {"tests", "node"}:
+                    # The lost primary may have recorded a subprocess start.
+                    task["gates"][gate["id"]] = {"status": "blocked", "termination_confirmed": False}
         event(task, "backup_restored", reason="Outcome may be uncertain; incomplete non-idempotent steps require confirmation")
         self.save(task)
         return task
