@@ -16,11 +16,12 @@ Use this router only when coordination materially improves a cross-disciplinary 
 
 ## Execute proportionally
 
-1. Inspect the request, relevant repository guidance, files, Git state, and available tests. Preserve unrelated user changes.
-2. Define observable acceptance criteria. Use a short checklist for small tasks; specify, plan, and split complex or risky work.
-3. Implement the smallest safe change using project conventions and evidence-based assumptions.
-4. Run focused checks that cover changed behavior and likely regressions. Review the diff, security, error handling, observability, and documentation where relevant. Report only checks actually run.
-5. Record meaningful changes and leave a reviewable result. Commit only when authorized and on the task branch.
+1. For resumed work, recover the original goal and corrections from the request, history, notes, and evidence; compare claims with current branch, commits, files, and validations. Preserve edits and authorship, and resume pending work only.
+2. Inspect relevant repository guidance, files, Git state, and available tests. Preserve unrelated user changes.
+3. Define observable acceptance criteria. Use a short checklist for small tasks; specify, plan, and split complex or risky work.
+4. Implement the smallest safe change using project conventions and evidence-based assumptions.
+5. Run focused checks that cover changed behavior and likely regressions. Review the diff, security, error handling, observability, and documentation where relevant. Report only checks actually run.
+6. Record meaningful changes and leave a reviewable result. Commit only when authorized and on the task branch.
 
 ## Safety and completion
 

@@ -120,7 +120,7 @@ class AgentAdapterLoadingTests(unittest.TestCase):
 
     def test_engineering_os_is_compact_without_losing_routing_or_guardrails(self) -> None:
         router = (ROOT / "skills" / "engineering-os" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertLessEqual(len(router.split()), 320)
+        self.assertLessEqual(len(router.split()), 380)
         for requirement in (
             "cross-disciplinary",
             "canonical agent-to-skill mapping",
@@ -133,6 +133,53 @@ class AgentAdapterLoadingTests(unittest.TestCase):
             "Never expose secrets or claim unrun checks",
         ):
             self.assertIn(requirement.casefold(), router.casefold())
+
+    def test_quality_reviewer_uses_bounded_independent_read_only_review(self) -> None:
+        reviewer = (ROOT / "agents" / "quality-reviewer.md").read_text(encoding="utf-8")
+        for requirement in (
+            "independently against its requirements",
+            "stable ID, severity",
+            "file and line",
+            "at most three rounds",
+            "Stop early",
+            "implementer owns all edits",
+            "do not approve with an unresolved critical or high finding",
+            "do not edit files, commit, merge, deploy",
+            "without expanding the change",
+        ):
+            self.assertIn(requirement.casefold(), reviewer.casefold())
+
+    def test_git_quality_pr_flow_is_optional_bounded_and_never_merges(self) -> None:
+        git_quality = (ROOT / "skills" / "git-quality" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("For authorized PR creation or CI follow-up, load", git_quality)
+        pr_delivery = (ROOT / "skills" / "git-quality" / "references" / "pr-delivery.md").read_text(encoding="utf-8")
+        for requirement in (
+            "Create or update a PR only when authorized",
+            "GitHub CLI is optional",
+            "Monitoring is optional",
+            "bounded wait",
+            "Never merge, enable auto-merge",
+            "force-push without explicit authorization",
+            "last observed state and limitation",
+            "CI/review state",
+        ):
+            self.assertIn(requirement.casefold(), pr_delivery.casefold())
+
+    def test_engineering_os_resumes_from_evidence_and_preserves_existing_work(self) -> None:
+        router = (ROOT / "skills" / "engineering-os" / "SKILL.md").read_text(encoding="utf-8")
+        for requirement in (
+            "recover the original goal",
+            "current branch, commits, files, and validations",
+            "compare claims with current branch, commits, files, and validations",
+            "preserve edits and authorship",
+            "resume pending work only",
+        ):
+            self.assertIn(requirement.casefold(), router.casefold())
+
+    def test_tstack_is_attributed_as_adapted_principles_without_bundled_material(self) -> None:
+        sources = (ROOT / "SOURCES.md").read_text(encoding="utf-8")
+        self.assertIn("TStack", sources)
+        self.assertIn("no TStack skill, script, or text is copied", sources)
 
     def test_generator_refuses_existing_unmarked_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
