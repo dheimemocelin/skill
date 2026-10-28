@@ -1,0 +1,10 @@
+{
+  "steps": [{"id": "inspect", "action": {"kind": "file_exists", "path": "package.json"}}],
+  "gates": [
+    {"id": "unit", "kind": "node", "profile": "vitest", "criterion": "Unit tests pass", "timeout_seconds": 120},
+    {"id": "types", "kind": "node", "profile": "typecheck", "criterion": "TypeScript has no errors", "timeout_seconds": 60},
+    {"id": "lint", "kind": "node", "profile": "eslint", "args": ["src", "--max-warnings=0"], "criterion": "Lint passes", "timeout_seconds": 60},
+    {"id": "build", "kind": "node", "profile": "build", "criterion": "Vite build succeeds", "timeout_seconds": 120},
+    {"id": "browser", "kind": "node", "profile": "playwright", "args": ["--workers=1"], "criterion": "Browser tests pass", "timeout_seconds": 120}
+  ]
+}

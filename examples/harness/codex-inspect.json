@@ -1,0 +1,4 @@
+{
+  "steps": [{"id": "inspect", "action": {"kind": "codex", "prompt": "Read sample.txt using a read-only command and summarize it. Do not change files."}, "timeout_seconds": 120, "max_attempts": 1}],
+  "gates": [{"id": "exists", "kind": "file_exists", "path": "sample.txt", "criterion": "Fixture remains present"}]
+}

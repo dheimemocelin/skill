@@ -9,13 +9,19 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Validate Agent Skills
         run: python scripts/validate_skills.py
-      - name: Test agent adapter loading
+      - name: Test adapters and Harness (no paid provider calls)
         run: python -m unittest discover -s tests -v

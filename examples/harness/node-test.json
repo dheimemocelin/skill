@@ -1,0 +1,4 @@
+{
+  "steps": [{"id": "inspect", "action": {"kind": "file_exists", "path": "examples/harness/sample.test.cjs"}}],
+  "gates": [{"id": "node", "kind": "node", "profile": "node-test", "args": ["examples/harness/sample.test.cjs"], "timeout_seconds": 30, "criterion": "Synthetic arithmetic test passes"}]
+}
