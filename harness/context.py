@@ -128,12 +128,18 @@ class ContextManager:
     def restore(self, task_id):
         """Explicit recovery only: retain damaged file and distrust in-flight work."""
         path = self.path(task_id)
+        try:
+            self.load(task_id)
+        except HarnessError:
+            pass
+        else:
+            raise HarnessError("Checkpoint is valid; restore is only for missing or corrupt state")
         task = self._read(path.with_suffix(".bak"))
         if task["id"] != task_id:
             raise HarnessError("Backup identity mismatch")
         if path.exists():
             os.replace(path, self.root / f"{task_id}.{uuid.uuid4().hex}.corrupt")
-        if task["state"] != "cancelled":
+        if task["state"] not in {"completed", "cancelled"}:
             task["state"] = "blocked"
         for spec in task["plan"]["steps"]:
             step = task["steps"][spec["id"]]

@@ -210,6 +210,19 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(final["state"], "failed")
         self.assertNotIn("PRIVATE_VALUE", self.h.context.path(task["id"]).read_text(encoding="utf-8"))
 
+    def test_restore_refuses_valid_state_and_preserves_terminal_backup(self):
+        task = self.create()
+        self.h.run(task["id"])
+        self.h.note(task["id"], "Completion verified")
+        with self.h.context.lock():
+            with self.assertRaises(HarnessError):
+                self.h.context.restore(task["id"])
+            self.h.context.path(task["id"]).write_text("broken", encoding="utf-8")
+            restored = self.h.context.restore(task["id"])
+        self.assertEqual(restored["state"], "completed")
+        with self.assertRaises(HarnessError):
+            self.h.run(task["id"], resume=True)
+
     def test_backup_before_start_still_requires_confirmation_and_charges_attempt(self):
         task = self.create(plan(idempotent=False))
         with self.h.context.lock():
