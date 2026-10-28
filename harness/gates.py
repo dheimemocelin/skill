@@ -7,7 +7,7 @@ from .execution import BuiltinExecutor, confined_file, process
 from .router import route
 
 
-def evaluate(gate, task, workspace, allow_tests=False):
+def evaluate(gate, task, workspace, allow_tests=False, test_profiles=None):
     kind = gate["kind"]
     if kind == "review":
         return {"status": "blocked", "reason": "review_executor_unavailable", "references": route([], "quality-reviewer")}
@@ -21,6 +21,9 @@ def evaluate(gate, task, workspace, allow_tests=False):
         return {"status": "passed" if ok else "failed", **evidence}
     if not allow_tests:
         return {"status": "blocked", "reason": "test_execution_requires_allow_tests"}
+    if kind == "node":
+        from .node_gates import evaluate_node
+        return evaluate_node(gate, workspace, test_profiles)
     # Fixed commands only. Tests themselves are trusted project code, not sandboxed.
     if gate["suite"] == "skills":
         target = confined_file(workspace, "scripts/validate_skills.py")
@@ -33,4 +36,7 @@ def evaluate(gate, task, workspace, allow_tests=False):
             return {"status": "failed", "reason": "no_tests_discovered"}
         command = [sys.executable, "-B", "-m", "unittest", "discover", "-s", str(target), "-v"]
     evidence, _ = process(command, Path(workspace), gate["timeout_seconds"])
-    return {"status": "passed" if evidence["exit_code"] == 0 and not evidence["timeout"] else "failed", "suite": gate["suite"], **evidence}
+    status = "passed" if evidence["exit_code"] == 0 and not evidence["timeout"] else "failed"
+    if not evidence["termination_confirmed"]:
+        status = "blocked"
+    return {"status": status, "suite": gate["suite"], **evidence}

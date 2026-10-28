@@ -43,7 +43,7 @@ class Orchestrator:
             self.context.save(task)
             return task
 
-    def run(self, task_id, *, resume=False, confirmed=(), allow_tests=False):
+    def run(self, task_id, *, resume=False, confirmed=(), allow_tests=False, test_profiles=None, confirmed_gates=()):
         with self.context.lock():
             task = self.context.load(task_id)
             confirmations = set(confirmed)
@@ -56,7 +56,7 @@ class Orchestrator:
             transition(task, "running")
             self.context.save(task)
             try:
-                return self._execute(task, confirmations, allow_tests)
+                return self._execute(task, confirmations, allow_tests, test_profiles, set(confirmed_gates))
             except KeyboardInterrupt:
                 event(task, "interrupted", reason="Inspect outstanding processes before resume")
                 transition(task, "blocked")
@@ -69,7 +69,7 @@ class Orchestrator:
         self.context.save(task)
         return task
 
-    def _execute(self, task, confirmations, allow_tests):
+    def _execute(self, task, confirmations, allow_tests, test_profiles=None, confirmed_gates=()):
         for spec in task["plan"]["steps"]:
             sid, state = spec["id"], task["steps"][spec["id"]]
             if state["status"] == "completed":
@@ -96,11 +96,16 @@ class Orchestrator:
         self.context.save(task)
         # Recheck all acceptance gates on resume; completed steps are never rerun.
         for gate in task["plan"]["gates"]:
+            previous = task["gates"].get(gate["id"], {})
+            if gate["kind"] in {"tests", "node"} and (previous.get("status") == "running" or previous.get("termination_confirmed") is False) and gate["id"] not in confirmed_gates:
+                return self._stop(task, "blocked", "confirm_gate_processes_stopped", gate["id"])
+            if gate["id"] in confirmed_gates:
+                event(task, "gate_retry_confirmed", gate=gate["id"])
             task["gates"][gate["id"]] = {"status": "running"}
             event(task, "gate_started", gate=gate["id"])
             self.context.save(task)
             try:
-                result = evaluate(gate, task, self.context.workspace, allow_tests)
+                result = evaluate(gate, task, self.context.workspace, allow_tests, test_profiles)
             except Exception:
                 result = {"status": "failed", "reason": "gate_execution_error"}
             task["gates"][gate["id"]] = result

@@ -22,8 +22,11 @@ def main(argv=None):
         command = sub.add_parser(name)
         command.add_argument("task_id")
         command.add_argument("--allow-tests", action="store_true", help="Authorize execution of trusted local test code for this invocation")
+        from .node_gates import PROFILES
+        command.add_argument("--test-profile", choices=sorted(PROFILES), action="append", help="Restrict authorized Node profiles (repeatable)")
         if name == "resume":
             command.add_argument("--confirm-retry", action="append", default=[], metavar="STEP", help="Confirm an uncertain/non-idempotent step is safe to retry once")
+            command.add_argument("--confirm-gate", action="append", default=[], metavar="GATE", help="Confirm an interrupted gate's processes have stopped and replay is safe")
     note = sub.add_parser("note")
     note.add_argument("task_id")
     note.add_argument("decision")
@@ -34,7 +37,7 @@ def main(argv=None):
         if command == "create":
             task = harness.create(args.request, json.loads(args.plan.read_text(encoding="utf-8")))
         elif command in {"run", "resume"}:
-            task = harness.run(args.task_id, resume=command == "resume", confirmed=getattr(args, "confirm_retry", ()), allow_tests=args.allow_tests)
+            task = harness.run(args.task_id, resume=command == "resume", confirmed=getattr(args, "confirm_retry", ()), allow_tests=args.allow_tests, test_profiles=args.test_profile, confirmed_gates=getattr(args, "confirm_gate", ()))
         elif command == "cancel":
             task = harness.cancel(args.task_id)
         elif command == "note":

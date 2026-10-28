@@ -20,7 +20,7 @@ def bounded(value, low, high, integer=False):
 def relative(value):
     text(value, "path")
     p = PurePosixPath(value)
-    if p.is_absolute() or any(part in {"..", ".git", ".harness", ".env"} for part in p.parts) or ":" in value or "\\" in value or any(part.startswith(".env.") for part in p.parts):
+    if "\x00" in value or p.is_absolute() or any(part in {"..", ".git", ".harness", ".env"} for part in p.parts) or ":" in value or "\\" in value or any(part.startswith(".env.") for part in p.parts):
         raise HarnessError("Use a workspace-relative, non-sensitive file path")
     return value
 
@@ -67,17 +67,20 @@ def normalize(plan):
         seen.add(sid)
     gates, gate_ids = [], set()
     for raw in plan["gates"]:
-        fields(raw, {"id", "criterion", "kind", "step", "path", "sha256", "suite", "timeout_seconds"}, {"id", "criterion", "kind"})
+        fields(raw, {"id", "criterion", "kind", "step", "path", "sha256", "suite", "timeout_seconds", "profile", "cwd", "args"}, {"id", "criterion", "kind"})
         gid = identifier(raw["id"])
         if gid in gate_ids:
             raise HarnessError("Duplicate gate ID")
         gate_ids.add(gid)
         text(raw["criterion"], "acceptance criterion")
         kind = raw["kind"]
-        specific = {"step_succeeded": {"step"}, "file_exists": {"path"}, "file_sha256": {"path", "sha256"}, "tests": {"suite"}, "review": set()}
+        specific = {"step_succeeded": {"step"}, "file_exists": {"path"}, "file_sha256": {"path", "sha256"}, "tests": {"suite"}, "review": set(), "node": {"profile"}}
         if kind not in specific:
             raise HarnessError("Unknown gate")
-        fields(raw, {"id", "criterion", "kind", "timeout_seconds"} | specific[kind], {"id", "criterion", "kind"} | specific[kind])
+        fields(raw, {"id", "criterion", "kind", "timeout_seconds"} | specific[kind] | ({"cwd", "args"} if kind == "node" else set()), {"id", "criterion", "kind"} | specific[kind])
+        if kind == "node":
+            from .node_gates import validate_gate
+            validate_gate(raw)
         if kind == "step_succeeded" and raw["step"] not in seen:
             raise HarnessError("Unknown gate step")
         if kind in {"file_exists", "file_sha256"}:

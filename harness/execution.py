@@ -2,17 +2,14 @@
 
 import hashlib
 import json
-import os
 from pathlib import Path
-import signal
-import subprocess
 import sys
 import time
 from typing import Protocol
 
 
 def validate_result(result):
-    allowed = {"ok", "failure", "executor", "exists", "sha256", "synthetic", "exit_code", "timeout", "seconds", "reason"}
+    allowed = {"ok", "failure", "executor", "exists", "sha256", "synthetic", "exit_code", "timeout", "seconds", "reason", "termination_confirmed", "output_truncated"}
     if not isinstance(result, dict) or set(result) - allowed or not {"ok", "failure", "executor"}.issubset(result):
         raise ValueError("Invalid executor evidence")
     if type(result["ok"]) is not bool or result["failure"] not in {None, "execution", "timeout"}:
@@ -23,7 +20,7 @@ def validate_result(result):
         raise ValueError("Unregistered executor")
     if "reason" in result and result["reason"] != "file_too_large":
         raise ValueError("Unknown result reason")
-    for key in {"exists", "synthetic", "timeout"} & result.keys():
+    for key in {"exists", "synthetic", "timeout", "termination_confirmed", "output_truncated"} & result.keys():
         if type(result[key]) is not bool:
             raise ValueError("Invalid result flag")
     if "exit_code" in result and type(result["exit_code"]) is not int:
@@ -67,31 +64,9 @@ def inspect_file(workspace, relative):
     return {"ok": True, "failure": None, "executor": "local-file", "exists": True, "sha256": hashlib.sha256(content).hexdigest()}
 
 
-def process(command, workspace, timeout, payload=None, capture=False):
-    """No shell; discard raw output by default. Terminate the owned tree on timeout."""
-    started = time.monotonic()
-    child = subprocess.Popen(command, cwd=workspace, stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE if capture else subprocess.DEVNULL,
-                             stderr=subprocess.DEVNULL, start_new_session=os.name != "nt")
-    try:
-        out, _ = child.communicate(payload, timeout=timeout)
-        return {"exit_code": child.returncode, "timeout": False, "seconds": round(time.monotonic() - started, 3)}, out
-    except (subprocess.TimeoutExpired, KeyboardInterrupt):
-        interrupted = isinstance(sys.exc_info()[1], KeyboardInterrupt)
-        try:
-            if os.name == "nt":
-                taskkill = str(Path(os.environ["SystemRoot"]) / "System32" / "taskkill.exe")
-                subprocess.run([taskkill, "/PID", str(child.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10, check=False)
-            else:
-                os.killpg(child.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        finally:
-            child.kill()
-            child.communicate(timeout=10)
-        if interrupted:
-            raise KeyboardInterrupt
-        return {"exit_code": child.returncode, "timeout": True, "seconds": round(time.monotonic() - started, 3)}, None
+def process(command, workspace, timeout, payload=None, capture=False, **options):
+    from .processes import run_process
+    return run_process(command, workspace, timeout, payload, capture, **options)
 
 
 class BuiltinExecutor:
@@ -101,7 +76,7 @@ class BuiltinExecutor:
                                    spec["timeout_seconds"], payload, capture=True)
         if evidence["timeout"]:
             return {"ok": False, "failure": "timeout", "executor": "builtin", **evidence}
-        if evidence["exit_code"] != 0:
+        if evidence["exit_code"] != 0 or not evidence["termination_confirmed"] or evidence["output_truncated"]:
             return {"ok": False, "failure": "execution", "executor": "builtin", **evidence}
         return {**json.loads(output), **evidence}
 
