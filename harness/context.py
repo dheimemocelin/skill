@@ -135,8 +135,13 @@ class ContextManager:
             os.replace(path, self.root / f"{task_id}.{uuid.uuid4().hex}.corrupt")
         if task["state"] != "cancelled":
             task["state"] = "blocked"
-        for step in task["steps"].values():
-            if step["status"] == "running":
+        for spec in task["plan"]["steps"]:
+            step = task["steps"][spec["id"]]
+            if step["status"] != "completed":
+                # The missing primary may have contained the next start record.
+                # Charge that uncertain attempt unless already marked in-flight.
+                if step["status"] != "running":
+                    step["attempts"] = min(spec["max_attempts"], step["attempts"] + 1)
                 step.update(status="failed", failure="interrupted")
         event(task, "backup_restored", reason="Outcome may be uncertain; incomplete non-idempotent steps require confirmation")
         self.save(task)

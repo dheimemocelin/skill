@@ -210,6 +210,21 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(final["state"], "failed")
         self.assertNotIn("PRIVATE_VALUE", self.h.context.path(task["id"]).read_text(encoding="utf-8"))
 
+    def test_backup_before_start_still_requires_confirmation_and_charges_attempt(self):
+        task = self.create(plan(idempotent=False))
+        with self.h.context.lock():
+            transition(task, "planning")
+            transition(task, "running")
+            self.h.context.save(task)
+            task["steps"]["inspect"].update(status="running", attempts=1)
+            self.h.context.save(task)
+            self.h.context.path(task["id"]).write_text("broken", encoding="utf-8")
+            self.h.context.restore(task["id"])
+        blocked = self.h.run(task["id"], resume=True)
+        self.assertEqual(blocked["state"], "blocked")
+        self.assertEqual(blocked["steps"]["inspect"]["attempts"], 1)
+        self.assertEqual(self.h.run(task["id"], resume=True, confirmed=["inspect"])["state"], "completed")
+
     def test_malformed_state_and_schema_rejected_even_with_checksum(self):
         from harness.context import encoded
         import hashlib
