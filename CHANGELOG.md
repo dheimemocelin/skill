@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add optional Engineering Harness Lite v1: serial local execution, versioned atomic checkpoints, bounded retries, conservative recovery, opt-in test gates, and a deterministic fixture executor; no native provider integration is claimed.
 - Add bounded, severity-based read-only review rounds; optional authorized PR/CI handoff; and evidence-based continuation of existing work, informed by TStack principles.
 - Reduce the Engineering OS router context while preserving routing, delegation, verification, and safety criteria; extend smoke evidence with exact skill activation and Codex token-usage counters.
 - Restrict canonical specialist roles to Software Engineer, AI Engineer, and Quality Reviewer; keep all seven skills as the reusable knowledge library.

@@ -1,0 +1,13 @@
+{
+  "steps": [
+    {
+      "id": "simulated-operation",
+      "action": {"kind": "fixture", "fail_until": 1},
+      "idempotent": false,
+      "max_attempts": 2
+    }
+  ],
+  "gates": [
+    {"id": "fixture-passed", "kind": "step_succeeded", "step": "simulated-operation", "criterion": "Synthetic executor succeeds on second attempt"}
+  ]
+}

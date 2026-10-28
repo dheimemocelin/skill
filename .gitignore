@@ -25,3 +25,6 @@ build/
 # Provider smoke-test transcripts, temporary projects, and local evidence
 .local-evidence/
 .smoke-runs/
+
+# Harness checkpoints, backups and local execution evidence
+.harness/

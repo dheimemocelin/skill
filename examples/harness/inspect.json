@@ -1,0 +1,12 @@
+{
+  "steps": [
+    {
+      "id": "inspect-readme",
+      "action": {"kind": "file_exists", "path": "README.md"},
+      "skills": ["software-engineering"]
+    }
+  ],
+  "gates": [
+    {"id": "readme-exists", "kind": "file_exists", "path": "README.md", "criterion": "README exists and can be read"}
+  ]
+}

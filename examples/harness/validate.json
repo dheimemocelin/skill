@@ -1,0 +1,9 @@
+{
+  "steps": [
+    {"id": "inspect", "action": {"kind": "file_exists", "path": "README.md"}, "skills": ["git-quality"]}
+  ],
+  "gates": [
+    {"id": "skills", "kind": "tests", "suite": "skills", "criterion": "Seven skills pass structural validation", "timeout_seconds": 60},
+    {"id": "tests", "kind": "tests", "suite": "unittest", "criterion": "Local test suite passes", "timeout_seconds": 120}
+  ]
+}
