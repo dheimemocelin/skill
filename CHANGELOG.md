@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Improve all seven skills with task-specific paths, activation boundaries, proportional workflows, dependency handling and observable completion examples.
 - Document v1.1 capabilities and measured smoke evidence, preserve runnable examples, and configure Python/Node validation for Windows, Linux and macOS (remote CI execution pending).
 - Add Harness Lite v1.1 optional read-only Codex CLI execution with explicit cost authorization, JSONL metadata, session checkpoints and no automatic replay; real Windows smoke passed on CLI 0.159.0.
 - Extend Harness gates with explicit local Node profiles, per-invocation authorization, bounded process trees and conservative interrupted-gate recovery; preserve v1 plans.

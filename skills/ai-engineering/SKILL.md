@@ -6,6 +6,24 @@ description: Build or evaluate LLM applications, agents, RAG and retrieval syste
 # ai-engineering
 
 
+## Choose the starting point
+
+Use for “Evaluate whether our assistant cites the right documents.” A deterministic CSV parser belongs to software-engineering; a query reconciliation belongs to data-engineering.
+
+1. Define the intended task, permitted actions and a representative success/failure example. Collect only constraints that affect the current decision; model selection needs the requirements below.
+2. Establish a baseline: existing behavior, deterministic implementation or a narrow model workflow. Avoid adding retrieval or agents without a demonstrated need.
+3. Evaluate on representative cases and relevant adversarial cases. Agree on success thresholds for the use case before judging results.
+4. Pilot only when measured behavior meets those thresholds and failures have a usable fallback. Broader release needs operational ownership, monitoring and rollback.
+
+For a prompt adjustment, compare the original and revised prompt on affected examples. A production launch requires the broader operating checks below. An evaluation-only request ends with findings and evidence, without requiring a pilot.
+
+## Missing context and completion
+
+If production data or a provider is unavailable, use explicitly labeled synthetic cases to exercise mechanics and report the remaining evidence gap. Do not turn synthetic success into a quality claim. Ask for missing permissions or business thresholds when they determine the next decision.
+
+Deliver the chosen workflow or evaluation, versioned comparison inputs, measured results and remaining failure modes. Example: “Citation accuracy improved on the evaluated set; two access-control cases still fail, so wider rollout remains blocked.”
+
+
 ## Requirements before choosing models
 Specify user objective, allowed autonomy, data classification, latency, throughput, target cost, failure tolerance and evaluation dataset. Verify model/API capabilities and provider documentation against the versions actually used; do not hardcode 'best model'.
 

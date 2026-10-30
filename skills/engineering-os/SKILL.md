@@ -7,6 +7,10 @@ description: Coordinate multi-stage engineering work across disciplines; use a f
 
 Use this router only when coordination materially improves a cross-disciplinary or multi-stage task. For a focused request, work directly with the relevant skill.
 
+## Routing examples
+
+Endpoint fix: software-engineering. Retrieval evaluation: ai-engineering. Metric reconciliation: data-engineering. Onboarding: ui-ux-design. Customer pilot: fde-delivery. Add git-quality for Git delivery. Inspect evidence first; report unresolved dependencies and next actions.
+
 ## Route work
 
 - Skills provide reusable knowledge; agents perform bounded work. The `skills` metadata in `agents/<role>.md` is the canonical agent-to-skill mapping.

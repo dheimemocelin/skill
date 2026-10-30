@@ -6,8 +6,29 @@ description: Design, critique, or refine product flows, visual interfaces, and d
 # ui-ux-design
 
 
+## Scale the work to the request
+
+Use for “Make this signup form easier to complete.” Route “The signup API returns 500” to software-engineering unless interaction behavior also changes.
+
+For a local adjustment, infer the user task from the existing interface, reuse its components, make the change and check affected states. Record new product/design documents only when a wider flow or unresolved decision needs durable context; existing documentation is preferred.
+
+For a new flow, establish the task and success measure, map states, then apply the approach below. For critique-only requests, deliver prioritized findings and concrete recommendations rather than implementing changes.
+
+## Checks by interaction
+
+- Forms: labels, required fields, validation timing, preserved input, actionable errors and submission feedback.
+- Navigation: current location, meaningful labels, keyboard operation, focus and return behavior.
+- Async views: loading, empty, error, retry and success states; preserve context during updates.
+
+Choose viewport and accessibility checks that cover the changed interaction. If a browser or assistive technology is unavailable, report which properties were inspected in code and which remain unverified.
+
+## Completion
+
+Show the changed flow or recommendation, explain the user task it supports, and report checked states and known gaps. Example: “Inline errors preserve entered values and focus the first invalid field; keyboard behavior was checked, screen-reader behavior remains unverified.”
+
+
 ## Approach (inspired by pbakaus/impeccable; external skill is optional)
-1. **Product truth:** capture audience, tasks, constraints, product voice, accessibility needs and success measure in PRODUCT.md or existing project docs.
+1. **Product truth:** capture audience, tasks, constraints, product voice, accessibility needs and success measure; use existing project docs or add PRODUCT.md when durable context is useful.
 2. **Shape before styling:** map flows, information hierarchy, empty/loading/error states, user permissions and responsive layouts.
 3. **Design language:** reuse existing DESIGN.md/tokens/components; if absent propose spacing, type scale, colors, density, radii, motion and contrast appropriate to context.
 4. **Implement:** semantic HTML/accessible interactions, keyboard navigation, visible focus, sensible loading skeletons, tables with sorting/filter states and mobile behavior.
