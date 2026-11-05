@@ -59,3 +59,16 @@ class BehavioralEvaluationTests(unittest.TestCase):
                 strings, _ = evaluation.trace_strings('{"type":"thread.started","thread_id":"fixture"}')
             self.assertIn('exact reference body', strings)
             self.assertNotIn('assistant claim', strings)
+
+    def test_fixture_changes_allow_test_bytecode_but_not_unrelated_edits(self):
+        self.assertTrue(evaluation.allowed_fixture_changes(['subtotal.py', '__pycache__/subtotal.cpython-312.pyc'], ['subtotal.py'], True))
+        self.assertFalse(evaluation.allowed_fixture_changes(['.codex/config.toml'], ['subtotal.py'], True))
+        self.assertFalse(evaluation.allowed_fixture_changes(['.codex/__pycache__/config.cpython-312.pyc'], ['subtotal.py'], True))
+        self.assertFalse(evaluation.allowed_fixture_changes(['__pycache__/payload.py'], [], True))
+        self.assertFalse(evaluation.allowed_fixture_changes(['subtotal.py'], ['subtotal.py'], False))
+
+    def test_review_location_uses_case_contract(self):
+        case = {'kind': 'security', 'expected_location': {'file': 'auth.py', 'lines': [1, 2]}}
+        answer = {'findings': [{'file': 'auth.py', 'line': 2, 'impact': 'tenant leak', 'scenario': 'other tenant', 'fix': 'check tenant'}]}
+        checks = evaluation.mechanical_checks(case, answer, [{'type': 'turn.completed'}], True, '')
+        self.assertTrue(checks['correct_file_location'])

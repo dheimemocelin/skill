@@ -2,10 +2,12 @@
 
 Codex CLI discovers project skills from `.agents/skills/<skill-name>/SKILL.md` and project custom agents from `.codex/agents/<name>.toml`. Each custom agent TOML defines `name`, `description`, and `developer_instructions`. The adapter maps canonical hyphenated role IDs to Codex's native underscore IDs. Codex project-scoped configuration is loaded only when the repository is trusted; delegated task labels must use lowercase letters, digits, and underscores.
 
-Generate into a disposable staging directory:
+Agents are optional: installing only the generated skill directories supports direct work. Generate into a fresh staging directory for each installation or update; compare and merge consumer customizations, and explicitly review obsolete files. Never overlay an existing project blindly.
+
+Replace `NEW` with a fresh identifier each time. Generate into a disposable staging directory:
 
 ```powershell
-python scripts/build_agent_adapters.py --target codex --output ./.generated-codex
+python scripts/build_agent_adapters.py --target codex --output ./.generated-codex-NEW
 ```
 
 The output contains `.codex/agents/*.toml` and `.agents/skills/`. Review the files, then copy the role TOML files beneath the target project's `.codex/agents/` and install the skill directories beneath `.agents/skills/`. Preserve existing files. Codex custom agents inherit the parent session's sandbox and tools; a custom agent cannot assign itself a stricter sandbox. The Quality Reviewer is instructed to review only. To enforce read-only behavior, run it in a read-only parent session and account for any external connector permissions. Canonical instructions prohibit agents from merging, deploying, publishing, or performing destructive Git operations automatically and require human approval for consequential side effects.

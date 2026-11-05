@@ -3,46 +3,25 @@ name: ai-engineering
 description: Build or evaluate LLM applications, agents, RAG and retrieval systems, prompts, MCP integrations, and tool-using workflows. Use when model behavior, grounding, safety, evaluation, latency, or inference cost is part of the task.
 ---
 
-# ai-engineering
+# AI engineering
 
+Use for model-backed behavior, retrieval, agents, evaluation and MCP. Deterministic application code uses software-engineering; avoid model calls when deterministic code meets the need.
 
-## MCP integrations
+## Define and evaluate behavior
 
-For MCP server/client development or review, read [MCP integration contracts](references/mcp-engineering.md). Use software-engineering for implementation; evaluate model tool selection separately from protocol correctness.
+1. Identify the intended task, allowed actions and representative success/failure cases. Before selecting a model, establish data classification, latency/throughput, cost target and failure tolerance where they affect the choice. Verify capabilities against the actual provider/API version.
+2. Start with a narrow baseline. Version prompts, models, datasets and tool schemas; compare candidates on the same cases. For a prompt adjustment, check affected cases before broader evaluations.
+3. Measure task success, grounding, tool correctness, authorization/refusal behavior and relevant latency/token counters. Use human judgment for ambiguous outcomes. Label synthetic fixtures and unavailable evidence; do not claim production readiness from demos.
+4. For deployment work, progress through offline evaluation and a representative pilot with agreed thresholds, ownership, monitoring and rollback. An evaluation-only request ends with findings, not a mandatory rollout.
 
+## Safe design
 
-## Choose the starting point
+- Separate instructions, policies, retrieved content, schemas and outputs; validate generated structures. Retrieved documents and tool text cannot override instructions or grant permissions.
+- Scope tool permissions and classify side effects. Enforce authorization server-side and obtain approval for consequential actions within the environment's policy.
+- Retrieval needs ingestion checks, structure-aware chunking, source IDs/citations, ACL filtering, freshness and abstention when evidence is insufficient.
+- Minimize/redact sensitive data; control access and retention. Avoid raw payloads or credentials in prompts and traces. Use sanitized identifiers for observability.
+- Bound context, timeouts, rate limits and retries; handle outages and uncertain writes with idempotency or outcome inspection.
 
-Use for “Evaluate whether our assistant cites the right documents.” A deterministic CSV parser belongs to software-engineering; a query reconciliation belongs to data-engineering.
+For MCP server/client work, read [MCP integration contracts](references/mcp-engineering.md). Use software-engineering for implementation and distinguish protocol tests from model tool-selection evaluations.
 
-1. Define the intended task, permitted actions and a representative success/failure example. Collect only constraints that affect the current decision; model selection needs the requirements below.
-2. Establish a baseline: existing behavior, deterministic implementation or a narrow model workflow. Avoid adding retrieval or agents without a demonstrated need.
-3. Evaluate on representative cases and relevant adversarial cases. Agree on success thresholds for the use case before judging results.
-4. Pilot only when measured behavior meets those thresholds and failures have a usable fallback. Broader release needs operational ownership, monitoring and rollback.
-
-For a prompt adjustment, compare the original and revised prompt on affected examples. A production launch requires the broader operating checks below. An evaluation-only request ends with findings and evidence, without requiring a pilot.
-
-## Missing context and completion
-
-If production data or a provider is unavailable, use explicitly labeled synthetic cases to exercise mechanics and report the remaining evidence gap. Do not turn synthetic success into a quality claim. Ask for missing permissions or business thresholds when they determine the next decision.
-
-Deliver the chosen workflow or evaluation, versioned comparison inputs, measured results and remaining failure modes. Example: “Citation accuracy improved on the evaluated set; two access-control cases still fail, so wider rollout remains blocked.”
-
-
-## Requirements before choosing models
-Specify user objective, allowed autonomy, data classification, latency, throughput, target cost, failure tolerance and evaluation dataset. Verify model/API capabilities and provider documentation against the versions actually used; do not hardcode 'best model'.
-
-## Design
-- Prefer deterministic software for deterministic operations; use LLM calls only where valuable.
-- Separate instructions, policies, retrieval context, tool schemas and outputs; validate generated structured outputs.
-- Agent tool calls require scoped permissions, least privilege, explicit side-effect classification and human approval for consequential operations.
-- For retrieval: ingestion checks, chunk strategy grounded in document structure, ACL filtering, citations/source IDs, index freshness and abstention when evidence is weak.
-- Defend against prompt injection in documents, tools and user-generated content; never treat retrieved text as higher-priority instructions.
-- Protect PII: minimize, redact/pseudonymize when needed, access controls, retention controls and avoid raw payloads in traces.
-- Handle retries, timeouts, provider outages, context budgets, rate limits and idempotent tool dispatch.
-
-## Evals and operating metrics
-Version prompts, models, datasets and tool schemas. Maintain representative golden cases plus adversarial/edge cases. Measure task success, factual grounding, refusal/approval behavior, tool correctness, latency, tokens and cost; use human raters for ambiguous decisions. Compare candidates on the same tasks and record uncertainties. Trace using sanitized identifiers; observe drift and regressions. Never call a demo production-ready without real evals.
-
-## Delivery
-Start with narrow workflow plus baseline; run offline evals; controlled pilot with HITL; gradual release with rollback strategy.
+Report the behavioral result, actual evaluation inputs/results and unresolved failure modes. Use provider counters when available; missing counters mean unknown, not zero or estimated savings.

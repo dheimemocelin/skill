@@ -1,0 +1,93 @@
+{
+  "bug": {
+    "prompt": "Investigate and fix the bug in subtotal.py. Follow existing conventions, add a regression test and run relevant tests. Empty orders must return 0 and multiple line quantities must be included. Work directly without delegation or installs.",
+    "files": {
+      "subtotal.py": "def subtotal(lines):\n    return sum(price for price, quantity in lines)\n",
+      "test_subtotal.py": "import unittest\nfrom subtotal import subtotal\nclass Tests(unittest.TestCase):\n    def test_one(self): self.assertEqual(subtotal([(5,1)]),5)\n"
+    },
+    "allowed_changes": [
+      "subtotal.py",
+      "test_subtotal.py"
+    ],
+    "validations": [
+      "import sys; from pathlib import Path; sys.path.insert(0,str(Path.cwd())); from subtotal import subtotal; assert subtotal([])==0; assert subtotal([(5,3),(2,4)])==23; assert subtotal([(0,5)])==0"
+    ],
+    "kind": "implementation",
+    "read_only": false,
+    "skills": [],
+    "reference": null,
+    "project_guidance": true
+  },
+  "feature": {
+    "prompt": "Add divide(a,b) to calculator.py following its existing architecture. Division by zero must raise ValueError(\"division by zero\"). Preserve add. Add and run focused tests. Work directly without delegation or installs.",
+    "files": {
+      "calculator.py": "def add(a, b):\n    return a + b\n"
+    },
+    "allowed_changes": [
+      "calculator.py",
+      "test_calculator.py"
+    ],
+    "validations": [
+      "import sys; from pathlib import Path; sys.path.insert(0,str(Path.cwd())); from calculator import add,divide; assert add(2,3)==5; assert divide(9,2)==4.5; assert divide(-8,2)==-4;\ntry: divide(1,0)\nexcept ValueError as e: assert str(e)==\"division by zero\"\nelse: raise AssertionError(\"missing error\")"
+    ],
+    "kind": "implementation",
+    "read_only": false,
+    "skills": [],
+    "reference": null,
+    "project_guidance": true
+  },
+  "review": {
+    "prompt": "Review auth.py against contract.md and find actionable correctness or security problems with file/line, failure scenario and fix. Return JSON with findings (file,line,impact,scenario,fix). Review only; preserve files. Work directly without delegation or installs.",
+    "files": {
+      "auth.py": "def authorize(user, record):\n    return bool(user)\n",
+      "contract.md": "Only authenticated users whose tenant equals the record tenant may access it.\n"
+    },
+    "kind": "security",
+    "read_only": true,
+    "reference": "software-engineering/references/design-review.md",
+    "skills": [],
+    "project_guidance": true,
+    "expected_location": {
+      "file": "auth.py",
+      "lines": [
+        1,
+        2
+      ]
+    }
+  },
+  "interface": {
+    "prompt": "Improve this signup page for a small neighborhood ceramics studio. Give it a coherent visual identity, clear typographic hierarchy and spacing, responsive layout, accessible labels/focus, and useful validation feedback. Preserve the single-file structure and email/name fields. Form errors must preserve inputs and explain recovery. Inspect rendered behavior if tooling is available; report visual or interaction checks you cannot perform. Work directly without delegation, installs, external services or starting a server.",
+    "files": {
+      "index.html": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Studio signup</title></head><body><h1>Join our pottery studio</h1><form><input name=\"name\"><input name=\"email\"><button>Submit</button></form></body></html>\n"
+    },
+    "allowed_changes": [
+      "index.html"
+    ],
+    "validations": [
+      "from html.parser import HTMLParser\nfrom pathlib import Path\nclass Check(HTMLParser):\n def __init__(self): super().__init__(); self.inputs=[]; self.labels=[]; self.names=[]; self.attrs=[]\n def handle_starttag(self,tag,attrs):\n  a=dict(attrs); self.names.append(tag); self.attrs.append(a)\n  if tag==\"input\": self.inputs.append(a)\n  if tag==\"label\": self.labels.append(a)\np=Check();p.feed(Path(\"index.html\").read_text());assert {\"name\",\"email\"}.issubset({a.get(\"name\") for a in p.inputs}); assert all(any(l.get(\"for\")==i.get(\"id\") and i.get(\"id\") for l in p.labels) for i in p.inputs if i.get(\"name\") in [\"name\",\"email\"]); assert any(a.get(\"name\")==\"viewport\" for a in p.attrs); assert any(a.get(\"type\")==\"email\" for a in p.inputs);assert \"style\" in p.names"
+    ],
+    "kind": "implementation",
+    "read_only": false,
+    "skills": [],
+    "reference": null,
+    "project_guidance": true
+  },
+  "ai-agent": {
+    "prompt": "Develop and evaluate a model-backed AI sentiment agent named SentimentAgent in sentiment_agent.py. Inject a fake model client with classify(text); never call a real provider. The agent must return only positive, neutral or negative, reject blank input and unexpected model labels with ValueError, and validate these behavioral contracts with representative fake model responses and tests. Use classify(text) as the public method. Work directly without delegation or installs.",
+    "files": {
+      "sentiment_agent.py": ""
+    },
+    "allowed_changes": [
+      "sentiment_agent.py",
+      "test_sentiment_agent.py"
+    ],
+    "validations": [
+      "import sys; from pathlib import Path; sys.path.insert(0,str(Path.cwd())); from sentiment_agent import SentimentAgent\nclass Client:\n def __init__(self,label): self.label=label;self.calls=[]\n def classify(self,text): self.calls.append(text);return self.label\nc=Client('positive');a=SentimentAgent(c);assert a.classify('good')=='positive'; assert c.calls==['good']\nfor x in ['', '   ']:\n try:a.classify(x)\n except ValueError: pass\n else:raise AssertionError('blank accepted')\nassert c.calls==['good']\ntry:SentimentAgent(Client('unexpected')).classify('text')\nexcept ValueError:pass\nelse:raise AssertionError('bad label accepted')"
+    ],
+    "kind": "implementation",
+    "read_only": false,
+    "skills": [],
+    "reference": null,
+    "project_guidance": true
+  }
+}

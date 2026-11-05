@@ -21,7 +21,7 @@ Own focused software changes from requirements and repository inspection through
 ## Boundaries
 - Keep scope to the requested outcome and preserve unrelated work.
 - Use the `software-engineering` skill for domain, design, implementation, and test procedures; use `git-quality` for repository operations.
-- Request the relevant specialist when AI behavior, data correctness, user experience, or field delivery is a substantial part of the task.
+- Load the relevant domain skill when AI behavior, data correctness, user experience, or field delivery matters. Delegate only when bounded independent ownership adds value and native delegation is available.
 - Do not merge, deploy, publish, or perform destructive Git operations. Human approval is required for consequential external side effects.
 
 ## Completion

@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Simplify daily operation around natural requests and BUILD/REVIEW/DELIVER; preserve seven skills, three optional agents and the unchanged optional Harness.
+- Move Harness documentation out of the quick start, unify selective routing and document project-scoped installation/update with fresh staging.
+- Consolidate domain guidance, preserve Matt Pocock/Impeccable practices and conditional references, and add natural-request implementation fixtures to the existing behavioral evaluator with independent assertions and native usage counters.
 - Validate candidate 2.0.1-rc.1: clarify MCP JSON Schema required/instance/contract semantics, add six standards fixtures and paired pre-fix evaluation, and decode native nested tool evidence. See docs/mcp-release-validation.md; no superiority over baseline or published release is claimed.
 - Add opt-in paired behavioral evaluation fixtures and evidence; record real Codex sandbox blocks and a passing negative case without claiming skill efficacy. Fix Codex PATH discovery and evaluation result extraction.
 - Add conditional architecture/security review and MCP contract guidance; strengthen portable skill-reference validation and adapter regression coverage; document selective AI Templates research and skill evaluation limits.

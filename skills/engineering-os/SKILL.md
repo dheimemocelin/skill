@@ -5,30 +5,26 @@ description: Coordinate multi-stage engineering work across disciplines; use a f
 
 # Engineering OS
 
-Use this router only when coordination materially improves a cross-disciplinary or multi-stage task. For a focused request, work directly with the relevant skill.
+Use only for cross-disciplinary work where coordination helps. Ordinary requests go directly to the relevant specialty; users need not name skills or agents. Endpoint changes use software-engineering; retrieval uses ai-engineering; metrics use data-engineering; interfaces use ui-ux-design; pilots use fde-delivery; Git delivery and review use git-quality.
 
-## Routing examples
+## Select context
 
-Endpoint fix: software-engineering. Retrieval evaluation: ai-engineering. Metric reconciliation: data-engineering. Onboarding: ui-ux-design. Customer pilot: fde-delivery. Add git-quality for Git delivery. Inspect evidence first; report unresolved dependencies and next actions.
+Load only skills needed for the current decision and references whose activation conditions apply. Locate symbols with targeted search, then inspect implementations, callers and tests. Expand the search when evidence warrants it; reuse unchanged reads and existing project tools.
 
-## Route work
+Skills provide knowledge, not execution permission. The metadata in agents/<role>.md is the canonical agent-to-skill mapping. Default to direct work or one specialist when bounded ownership adds value; verify native adapter availability before dispatch. Agents are optional; never delegate merely to shorten the parent's transcript.
 
-- Skills provide reusable knowledge; agents perform bounded work. The `skills` metadata in `agents/<role>.md` is the canonical agent-to-skill mapping.
-- The available agents are Software Engineer, AI Engineer, and Quality Reviewer. Data Engineering, UI/UX Design, and FDE remain skills.
-- Load only skills needed for this task. Check that the provider's native adapter supports an agent before dispatch; if unavailable, work directly.
-- Default to direct work or one specialist. Delegate only when specialist ownership materially improves correctness or isolates substantial independent work. Parallelize only independent work that will not edit the same files.
+## BUILD
 
-## Execute proportionally
+For resumed work, recover the original goal and corrections; compare claims with current branch, commits, files, and validations. Preserve edits and authorship, and resume pending work only.
 
-1. For resumed work, recover the original goal and corrections from the request, history, notes, and evidence; compare claims with current branch, commits, files, and validations. Preserve edits and authorship, and resume pending work only.
-2. Inspect relevant repository guidance, files, Git state, and available tests. Preserve unrelated user changes.
-3. Define observable acceptance criteria. Use a short checklist for small tasks; specify, plan, and split complex or risky work.
-4. Implement the smallest safe change using project conventions and evidence-based assumptions.
-5. Run focused checks that cover changed behavior and likely regressions. Review the diff, security, error handling, observability, and documentation where relevant. Report only checks actually run.
-6. Record meaningful changes and leave a reviewable result. Commit only when authorized and on the task branch.
+Understand the domain and existing conventions. Define observable acceptance criteria; plan only as complexity or risk warrants. Implement the smallest compatible slice with explicit contracts, appropriate types and secure defaults. Preserve unrelated changes and avoid premature abstractions.
 
-## Safety and completion
+## REVIEW
 
-Preserve existing work; use secure defaults, clear failure signals, and reversible changes. Reuse existing dependencies. Never expose secrets or claim unrun checks. Follow project restrictions and current documentation for version-sensitive work. Human approval is required for consequential external actions, destructive operations, merge, deploy, or publication.
+Run focused checks for changed behavior and risks; inspect the diff. Reuse checks only while relevant code, inputs, dependencies and configuration match. Review critical authorization, persistence and public-contract changes carefully. Apply visual/accessibility review when UI is affected; context savings cannot replace it.
 
-Report the outcome, focused validation, limitations, and any needed handoff. Skip formal planning for routine edits; do not skip checks needed to establish correctness.
+## DELIVER
+
+Report outcome, commands/check scope and results, then unresolved limitations. Keep exit status, failures, errors, skips and truncation visible in summaries; retrieve necessary details rather than guessing. Stop when acceptance evidence is sufficient. Never expose secrets or claim unrun checks.
+
+Human approval is required for consequential external actions, destructive operations, merge, deploy or publication. Reuse existing authorization within its scope; commit only when authorized. The Harness is optional and is not needed for this workflow.

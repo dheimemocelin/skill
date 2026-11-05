@@ -1,0 +1,11 @@
+{
+  "version": "codex-cli 0.166.0",
+  "exit_code": 0,
+  "thread_id": "01a1acfa-c4e3-7dd3-87f8-ac9b4496236d",
+  "fixture_unchanged": true,
+  "project_rule_in_native_tool_output": false,
+  "software_skill_exact_body_in_native_tool_output": false,
+  "agents_installed": false,
+  "answer": "The supplied project instructions require **all API changes to preserve error code `CONTRACT-17`**.\n\nThe relevant installed guidance is `/tmp/engos-discovery-bwzyaw_n/project/.agents/skills/software-engineering/SKILL.md`, which covers debugging APIs. I attempted to inspect it, but local reads failed with `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`, so I cannot claim its contents were verified.\n\nNo edits, tests, delegation, installation, or external contact occurred.",
+  "stdout_sha256": "2e80b29bdca9702efdcd661d360bf2e742bc687af0e6bd6e9a5122b9cc07d21f"
+}

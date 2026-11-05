@@ -1,0 +1,12 @@
+{
+  "version": "codex-cli 0.166.0",
+  "exit_code": 0,
+  "thread_id": "01a1acfb-854b-77b3-8d65-c2219c1e9fff",
+  "helper_path_prefix": "/usr/local/libexec/engineering-os",
+  "fixture_unchanged": true,
+  "project_rule_in_native_tool_output": true,
+  "software_skill_exact_body_in_native_tool_output": true,
+  "agents_installed": false,
+  "answer": "- Project rule: \u201cAll API changes must preserve error code CONTRACT-17.\u201d Read in [AGENTS.md](/tmp/engos-discovery-7j4kgi_e/project/AGENTS.md).\n- Relevant installed guidance inspected: [software-engineering/SKILL.md](/tmp/engos-discovery-7j4kgi_e/project/.agents/skills/software-engineering/SKILL.md). It covers API bug investigation, locating code/callers/tests, isolating causes, and preserving error contracts.\n\nVerification only completed; no edits, tests, delegation, installation, or external services.",
+  "stdout_sha256": "32b22e56a228bb850ce8a5a7562616a98cf77accb6bfa7ac513c47e4b792263d"
+}

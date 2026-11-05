@@ -1,0 +1,788 @@
+{
+  "baseline": "06770ff",
+  "branch": "refactor/daily-engineering-flow",
+  "usage_basis": "native_session_counters; not invoice or causal savings",
+  "results": [
+    {
+      "run_id": "20261105T152352Z",
+      "case": "bug",
+      "variant": "baseline",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": false,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "engineering-os",
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 104141,
+        "cached_input_tokens": 92416,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 665,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 104806,
+        "model_responses": 6,
+        "uncached_input_tokens": 11725
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "3"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/subtotal.cpython-312.pyc",
+        "__pycache__/test_subtotal.cpython-312.pyc",
+        "subtotal.py",
+        "test_subtotal.py"
+      ],
+      "fixture_initial_sha256": {
+        "subtotal.py": "ee878cac8af427fba61928123a909a4609285a5aefc24b01592f246c82954de0",
+        "test_subtotal.py": "782484591f6cc597b3cc65705bad0069914adaef2bb85a417134aacca944660a"
+      },
+      "fixture_final_sha256": {
+        "subtotal.py": "714e8315216f24684e4bee107e163c8673ffccbef587251065aff898b7d57cc4",
+        "test_subtotal.py": "617b61494aae9d608d7c2ffb1d14f6ebcbb358f6386f552aab81bb8ebc5d4ea5"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "26ec159b5b139ba2313732b6b0f066ef41fe8e4ac80958da18cf6e42c594ee9c",
+      "thread_id": "01a1ac4f-2e7c-7d21-a086-897414bbdd2e",
+      "configuration_digest": "11f2987faee7d6150531ab49ba90112b37b4b1bcfaf2ecef2552ab78c7bafbe4",
+      "answer": "Fixed `subtotal.py` to sum `price * quantity` for every line. Empty orders return `0`.\n\nAdded regression tests for empty orders and multiple line quantities, following existing conventions.\n\nAll 3 tests pass with `python3 -m unittest -v`. Reviewed the changes; no installs or delegation used.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 5
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "bug",
+      "variant": "current",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": false,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 100588,
+        "cached_input_tokens": 89728,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 650,
+        "reasoning_output_tokens": 7,
+        "total_tokens": 101238,
+        "model_responses": 6,
+        "uncached_input_tokens": 10860
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "3"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/subtotal.cpython-312.pyc",
+        "__pycache__/test_subtotal.cpython-312.pyc",
+        "subtotal.py",
+        "test_subtotal.py"
+      ],
+      "fixture_initial_sha256": {
+        "subtotal.py": "ee878cac8af427fba61928123a909a4609285a5aefc24b01592f246c82954de0",
+        "test_subtotal.py": "782484591f6cc597b3cc65705bad0069914adaef2bb85a417134aacca944660a"
+      },
+      "fixture_final_sha256": {
+        "subtotal.py": "714e8315216f24684e4bee107e163c8673ffccbef587251065aff898b7d57cc4",
+        "test_subtotal.py": "27a25aa5fc708fbaeeda35c708772d90b0b54522111d23b5369631188b7f76c3"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "8aafb7c8b348566e574964fae4e693dde7b2a82fb67d7838aa399f28bdd3edcf",
+      "thread_id": "01a1ac4f-a129-7033-ab23-eb5ea1c30ae8",
+      "configuration_digest": "948f844f4891a86b65268211929da7c362bf65ba2b0850a91b79ae8e7ba27a1e",
+      "answer": "Fixed `subtotal.py` to sum `price * quantity` for every line. Empty orders still return `0`.\n\nAdded regression tests for empty orders and multiple line quantities, following existing conventions. Confirmed the quantity test failed before the fix.\n\nValidation: `python3 -m unittest discover -v` \u2014 all 3 tests passed.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 5
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "feature",
+      "variant": "baseline",
+      "raw_result": "mechanical_pass",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": true,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "engineering-os",
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 109536,
+        "cached_input_tokens": 93440,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 791,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 110327,
+        "model_responses": 5,
+        "uncached_input_tokens": 16096
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "3"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "calculator.py",
+        "test_calculator.py"
+      ],
+      "fixture_initial_sha256": {
+        "calculator.py": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772"
+      },
+      "fixture_final_sha256": {
+        "calculator.py": "66c790e9fa8b82f118ad216708bb5363758e2963fa395efd1abafaba86fed622"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "788e769369aa490504b9a9447d843d503d04ccad391d95477558c752ed79b7a9",
+      "thread_id": "01a1ac50-1ccb-7493-ae83-a6b5900d7884",
+      "configuration_digest": "9950b11820e032d5398a4ad4c8979d1af0fe86e951b27decea58e967b2b48d0f",
+      "answer": "Added `divide(a, b)` using the existing function-based architecture. Zero denominators raise `ValueError(\"division by zero\")`; `add` is unchanged.\n\nAdded focused tests in `test_calculator.py`. All 3 pass with `python3 -m unittest -v test_calculator`. The `python` command was unavailable.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "feature",
+      "variant": "current",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": false,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 83260,
+        "cached_input_tokens": 65536,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 738,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 83998,
+        "model_responses": 5,
+        "uncached_input_tokens": 17724
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "3"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/calculator.cpython-312.pyc",
+        "__pycache__/test_calculator.cpython-312.pyc",
+        "calculator.py",
+        "test_calculator.py"
+      ],
+      "fixture_initial_sha256": {
+        "calculator.py": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772"
+      },
+      "fixture_final_sha256": {
+        "calculator.py": "66c790e9fa8b82f118ad216708bb5363758e2963fa395efd1abafaba86fed622"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "6969f0bbe0ce41c68333c2537f819afaffb20c9441de1cce66a8286435e98ee6",
+      "thread_id": "01a1ac50-9093-7ef0-a0d7-b53db38df620",
+      "configuration_digest": "5bb291e92ea03062240880876db65f9642ac77bf964ce254e4c25a63be37c948",
+      "answer": "Added `divide(a, b)` to `calculator.py`, following its existing function structure. Zero divisors raise `ValueError(\"division by zero\")`; `add` is unchanged.\n\nAdded focused tests for division, zero divisors, and addition regression. `python3 -m unittest -v test_calculator` passed all 3 tests. The initial `python` command was unavailable.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "review",
+      "variant": "baseline",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": false
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "engineering-os",
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 82648,
+        "cached_input_tokens": 68480,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 792,
+        "reasoning_output_tokens": 26,
+        "total_tokens": 83440,
+        "model_responses": 5,
+        "uncached_input_tokens": 14168
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [],
+      "independent_validations": [],
+      "changed_files": [],
+      "fixture_initial_sha256": {
+        "auth.py": "ec99a79605e279a58dc7298e91b749094a0ccce3917708d60dc05d6ff1705fe5",
+        "contract.md": "a208d2961caeec00eaae8358df187e839c089f74b3b53c222da0f4ba5aac0a8a"
+      },
+      "fixture_final_sha256": {
+        "auth.py": "ec99a79605e279a58dc7298e91b749094a0ccce3917708d60dc05d6ff1705fe5",
+        "contract.md": "a208d2961caeec00eaae8358df187e839c089f74b3b53c222da0f4ba5aac0a8a"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "e513a6c8ee14e95e36df6166571bbd16f1a855eee2cc81893afc926a15120a76",
+      "thread_id": "01a1ac50-fd90-7b31-8428-57fa53014c51",
+      "configuration_digest": "9950b11820e032d5398a4ad4c8979d1af0fe86e951b27decea58e967b2b48d0f",
+      "answer": "{\n  \"findings\": [\n    {\n      \"file\": \"auth.py\",\n      \"line\": 2,\n      \"impact\": \"Unauthenticated users can receive authorization.\",\n      \"scenario\": \"A truthy user object representing an unauthenticated user returns true. Confirmed with an in-memory Python check.\",\n      \"fix\": \"Explicitly require the user model's authentication status; deny absent or unauthenticated users.\"\n    },\n    {\n      \"file\": \"auth.py\",\n      \"line\": 2,\n      \"impact\": \"Users can access records belonging to other tenants.\",\n      \"scenario\": \"An authenticated user from tenant B is authorized for a record from tenant A because record is never checked. Confirmed with an in-memory Python check.\",\n      \"fix\": \"Require the authenticated user's tenant identifier to equal the record's tenant identifier, denying missing tenant identifiers.\"\n    }\n  ]\n}",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "review",
+      "variant": "current",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": false
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 78889,
+        "cached_input_tokens": 70528,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 714,
+        "reasoning_output_tokens": 22,
+        "total_tokens": 79603,
+        "model_responses": 5,
+        "uncached_input_tokens": 8361
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [],
+      "independent_validations": [],
+      "changed_files": [],
+      "fixture_initial_sha256": {
+        "auth.py": "ec99a79605e279a58dc7298e91b749094a0ccce3917708d60dc05d6ff1705fe5",
+        "contract.md": "a208d2961caeec00eaae8358df187e839c089f74b3b53c222da0f4ba5aac0a8a"
+      },
+      "fixture_final_sha256": {
+        "auth.py": "ec99a79605e279a58dc7298e91b749094a0ccce3917708d60dc05d6ff1705fe5",
+        "contract.md": "a208d2961caeec00eaae8358df187e839c089f74b3b53c222da0f4ba5aac0a8a"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "cca6aa0d5c18a5bb39a1c4bb10e7477156d6d6d3b41d4a6e285af6ccc510f275",
+      "thread_id": "01a1ac51-acb7-7202-a813-e97d1a3e8183",
+      "configuration_digest": "5bb291e92ea03062240880876db65f9642ac77bf964ce254e4c25a63be37c948",
+      "answer": "{\n  \"findings\": [\n    {\n      \"file\": \"auth.py\",\n      \"line\": 2,\n      \"impact\": \"Cross-tenant access: authorization ignores the record's tenant.\",\n      \"scenario\": \"An authenticated, truthy user from tenant A is authorized for a record belonging to tenant B. Confirmed with Python 3.\",\n      \"fix\": \"Require both tenant identifiers to be present and equal before granting access.\"\n    },\n    {\n      \"file\": \"auth.py\",\n      \"line\": 2,\n      \"impact\": \"Authentication bypass: object truthiness does not establish authentication.\",\n      \"scenario\": \"A truthy user object representing an unauthenticated user is authorized. Confirmed with Python 3 using a nonempty dictionary with authenticated=False.\",\n      \"fix\": \"Check the application's trusted authentication state explicitly and deny unauthenticated users before checking tenant membership.\"\n    }\n  ]\n}",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "interface",
+      "variant": "baseline",
+      "raw_result": "mechanical_pass",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": true,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "partial_visual_unverified",
+      "skills_observed_in_native_output": [
+        "engineering-os",
+        "software-engineering",
+        "ui-ux-design"
+      ],
+      "usage": {
+        "input_tokens": 117763,
+        "cached_input_tokens": 93312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 4270,
+        "reasoning_output_tokens": 34,
+        "total_tokens": 122033,
+        "model_responses": 5,
+        "uncached_input_tokens": 24451
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "index.html"
+      ],
+      "fixture_initial_sha256": {
+        "index.html": "c6a1a39f380f783fc5a4ffd319f2ed95fd89efabf6e2f1cfc93374b28f7319e1"
+      },
+      "fixture_final_sha256": {
+        "index.html": "24fc94e118a4698db81d11d24d00b40f3a826df62ebc01d2b24bee87dd347a9f"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "34df6ceb63640cc78c4fc394a8e2f1865ba66bd6a57fe4e3e7b8d85e94fc7866",
+      "thread_id": "01a1ac52-12f5-7541-881d-1724ed16b993",
+      "configuration_digest": "9950b11820e032d5398a4ad4c8979d1af0fe86e951b27decea58e967b2b48d0f",
+      "answer": "Updated [index.html](/tmp/engos-behavior-msaenu8z/index.html) with a warm ceramics identity, clearer typography and spacing, responsive layout, accessible labels, and visible focus.\n\nValidation preserves inputs, explains corrections, and focuses the first invalid field. The single-file structure and name/email fields remain intact. Submission clearly states that signup isn\u2019t connected.\n\nScript checks passed for validation, recovery, preserved values, and focus targets. Rendered layout, real keyboard interaction, and screen-reader behavior remain unverified because browser tooling wasn\u2019t available. No installs, external services, or server were used.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "interface",
+      "variant": "current",
+      "raw_result": "mechanical_pass",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": true,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "partial_visual_unverified",
+      "skills_observed_in_native_output": [
+        "software-engineering",
+        "ui-ux-design"
+      ],
+      "usage": {
+        "input_tokens": 92792,
+        "cached_input_tokens": 90240,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 4727,
+        "reasoning_output_tokens": 106,
+        "total_tokens": 97519,
+        "model_responses": 5,
+        "uncached_input_tokens": 2552
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "index.html"
+      ],
+      "fixture_initial_sha256": {
+        "index.html": "c6a1a39f380f783fc5a4ffd319f2ed95fd89efabf6e2f1cfc93374b28f7319e1"
+      },
+      "fixture_final_sha256": {
+        "index.html": "f59d302c80e8dbf604222043dbc6a164b954f4787e9f111d9d9f92f09e95a13c"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "ae5b45ce9b20b7c9d0d92a95aada9c16bafa79638b454862be119947982c0fcb",
+      "thread_id": "01a1ac53-9fca-70b1-b740-187e76a43f2b",
+      "configuration_digest": "5bb291e92ea03062240880876db65f9642ac77bf964ce254e4c25a63be37c948",
+      "answer": "Updated [index.html](/tmp/engos-behavior-lj8bu1zh/index.html) with clay colors, serif typography, pottery artwork, responsive spacing, accessible labels, and visible focus.\n\nValidation preserves inputs, explains corrections, and focuses the first invalid field. Valid submissions explain that signup isn\u2019t connected.\n\nLocal script and HTML checks passed. Rendered desktop/mobile, keyboard, and screen-reader behavior remain unverified because browser tooling is unavailable. No installs, external services, server, or delegation used.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "ai-agent",
+      "variant": "baseline",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": false,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "engineering-os",
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 108746,
+        "cached_input_tokens": 70528,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1245,
+        "reasoning_output_tokens": 9,
+        "total_tokens": 109991,
+        "model_responses": 5,
+        "uncached_input_tokens": 38218
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "4"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/sentiment_agent.cpython-312.pyc",
+        "__pycache__/test_sentiment_agent.cpython-312.pyc",
+        "sentiment_agent.py",
+        "test_sentiment_agent.py"
+      ],
+      "fixture_initial_sha256": {
+        "sentiment_agent.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "fixture_final_sha256": {
+        "sentiment_agent.py": "b98d22abb5ed183ed9471234264a055de4e6456426f2bb1d5dd6e8ba1535ad1f"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "4d38800dddf70d0a0383665075039acc6ec1ccfa07dbb9eac468df725c1d38b5",
+      "thread_id": "01a1ac55-c592-7f93-871b-73a61479dfa7",
+      "configuration_digest": "9950b11820e032d5398a4ad4c8979d1af0fe86e951b27decea58e967b2b48d0f",
+      "answer": "Implemented `SentimentAgent` with an injected client, strict sentiment labels, and `ValueError` for blank input or unexpected labels.\n\nAdded fake-client tests: all 4 passed with `python3 -m unittest discover -v`. Reviewed the diff. No installs or real model calls.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T152352Z",
+      "case": "ai-agent",
+      "variant": "current",
+      "raw_result": "failed",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": false,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": "not retained in original mutable-case summary",
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 107617,
+        "cached_input_tokens": 92160,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1131,
+        "reasoning_output_tokens": 24,
+        "total_tokens": 108748,
+        "model_responses": 5,
+        "uncached_input_tokens": 15457
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "3"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/sentiment_agent.cpython-312.pyc",
+        "__pycache__/test_sentiment_agent.cpython-312.pyc",
+        "sentiment_agent.py",
+        "test_sentiment_agent.py"
+      ],
+      "fixture_initial_sha256": {
+        "sentiment_agent.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "fixture_final_sha256": {
+        "sentiment_agent.py": "1a45f6f0ede4bbca89faa959629cb2bc04e5289c01ca4743162c1e9173586cb7"
+      },
+      "case_spec_sha256": "1955956ab9fac7d8722a71c092659d272f73dea9129f313c2f49f005e0eb3540",
+      "stdout_sha256": "06c707461255a7a87cfb01a0720c298aaef9b348fd2e31612da7c9fcfd629905",
+      "thread_id": "01a1ac56-61fe-76d3-b25f-98bfb577835f",
+      "configuration_digest": "5bb291e92ea03062240880876db65f9642ac77bf964ce254e4c25a63be37c948",
+      "answer": "Implemented `SentimentAgent` with an injected client, exact label validation, and `ValueError` for blank input or unexpected labels.\n\nAdded fake-client tests: `python3 -m unittest discover -v` passed all 3 tests. The initial `python` command was unavailable. No model service calls, installs, or delegation.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    },
+    {
+      "run_id": "20261105T153410Z",
+      "case": "ai-agent",
+      "variant": "baseline",
+      "raw_result": "mechanical_pass",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": true,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": true,
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "ai-engineering",
+        "engineering-os"
+      ],
+      "usage": {
+        "input_tokens": 90148,
+        "cached_input_tokens": 73856,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1556,
+        "reasoning_output_tokens": 17,
+        "total_tokens": 91704,
+        "model_responses": 4,
+        "uncached_input_tokens": 16292
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "5"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "sentiment_agent.py",
+        "test_sentiment_agent.py"
+      ],
+      "fixture_initial_sha256": {
+        "sentiment_agent.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "fixture_final_sha256": {
+        "sentiment_agent.py": "f58ed71fc229d43ff5b7d628eeac726d0f796bd39a4fd515f2d5a87b0fff9687"
+      },
+      "case_spec_sha256": "1d1156b910b908ea47303c2b5b40bbdb6c0f94bce7a57a916be25872623a2426",
+      "stdout_sha256": "14d60c80a37b825e35737d821c3996cc945fa05d987823cf74ef4211760eb29d",
+      "thread_id": "01a1ac58-9d44-71c3-833a-7f4448b4ac3a",
+      "configuration_digest": "9950b11820e032d5398a4ad4c8979d1af0fe86e951b27decea58e967b2b48d0f",
+      "answer": "Implemented [SentimentAgent](./sentiment_agent.py) with an injected client and public `classify(text)` method. It returns only exact `positive`, `neutral`, or `negative` labels and raises `ValueError` for blank input or unexpected responses.\n\n[Tests](./test_sentiment_agent.py) use fake clients only. All 5 tests passed with `python3 -m unittest discover -v`. Diff reviewed; no installs or real provider calls. These tests validate behavioral contracts, not model accuracy.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 3
+    },
+    {
+      "run_id": "20261105T153410Z",
+      "case": "ai-agent",
+      "variant": "current",
+      "raw_result": "mechanical_pass",
+      "raw_checks": {
+        "terminal_event": true,
+        "only_allowed_files_changed": true,
+        "independent_validations": true
+      },
+      "reviewed_checks": {
+        "terminal_event": true,
+        "independent_validations": true,
+        "declared_source_and_corresponding_bytecode_only": true
+      },
+      "index_unchanged": true,
+      "status": "functional_checks_passed",
+      "skills_observed_in_native_output": [
+        "ai-engineering",
+        "software-engineering"
+      ],
+      "usage": {
+        "input_tokens": 87891,
+        "cached_input_tokens": 82048,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1383,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 89274,
+        "model_responses": 5,
+        "uncached_input_tokens": 5843
+      },
+      "model_test_suite_counts_observed_in_native_tool_output": [
+        "4"
+      ],
+      "independent_validations": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "-I",
+            "-c",
+            "<versioned fixture assertion>"
+          ],
+          "scope": "validation 0",
+          "exit_code": 0
+        }
+      ],
+      "changed_files": [
+        "__pycache__/sentiment_agent.cpython-312.pyc",
+        "__pycache__/test_sentiment_agent.cpython-312.pyc",
+        "sentiment_agent.py",
+        "test_sentiment_agent.py"
+      ],
+      "fixture_initial_sha256": {
+        "sentiment_agent.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "fixture_final_sha256": {
+        "sentiment_agent.py": "054df5b8efa8f1f333ec5fac71316ebaeb1bf886ae91270796824ba4fa69661e"
+      },
+      "case_spec_sha256": "1d1156b910b908ea47303c2b5b40bbdb6c0f94bce7a57a916be25872623a2426",
+      "stdout_sha256": "d49ed2b54426c44dcc131ad2e96c077305044ccbe17b27ee6fe74f6c2f621952",
+      "thread_id": "01a1ac59-3cfe-7aa2-a360-c34c311cd190",
+      "configuration_digest": "5bb291e92ea03062240880876db65f9642ac77bf964ce254e4c25a63be37c948",
+      "answer": "Implemented [SentimentAgent](sentiment_agent.py) with injected `classify(text)` client, exact allowed labels, and `ValueError` for blank input or unexpected responses.\n\nAdded [fake-client tests](test_sentiment_agent.py). `python3 -m unittest discover -v` passed all 4 tests. The initial `python` command was unavailable.\n\nNo real providers or installs were used. Tests validate behavioral contracts, not model accuracy.",
+      "native_models_observed": [
+        "gpt-6.1-sol"
+      ],
+      "native_tool_invocations": 4
+    }
+  ],
+  "limits": [
+    "One fixed-order pair per task; no causal or general cost claim.",
+    "UI rendered/interaction evaluation unavailable.",
+    "Original mutable scorer did not retain index_unchanged separately.",
+    "Claude CLI unavailable; T3 end-to-end not tested."
+  ]
+}

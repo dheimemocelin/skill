@@ -1,0 +1,12 @@
+{
+  "preview_status_available": false,
+  "preview_open_result": "isError=true",
+  "error": "Preview automation open failed: This host is missing libraries T3's browser needs (libatk-1.0.so.0, libatk-bridge-2.0.so.0, libXcomposite.so.1, libXdamage.so.1, libXfixes.so.3, libXrandr.so.2, libgbm.so.1, libasound.so.2, libatspi.so.0).",
+  "local_browser_executables_found": [],
+  "python_playwright_available": false,
+  "rendered_composition_typography_spacing": "not_run",
+  "responsive_rendering": "not_run",
+  "accessibility_and_interaction_runtime": "not_run",
+  "packages_installed": false,
+  "tab_opened": false
+}

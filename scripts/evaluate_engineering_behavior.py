@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import sys
 import subprocess
 import tempfile
 
@@ -94,8 +95,20 @@ def mechanical_checks(case, answer, events, unchanged, text):
         findings = answer.get('findings', []) if isinstance(answer, dict) else []
         checks['structured_findings'] = bool(findings) and all(isinstance(f, dict) and all(f.get(k) for k in (['file', 'line', 'impact', 'scenario', 'fix'] if case['kind'] == 'security' else ['field', 'impact', 'scenario', 'fix'])) for f in findings)
         if case['kind'] == 'security':
-            checks['correct_file_location'] = any(f.get('file') == 'customer.py' and f.get('line') in [2, 3] for f in findings if isinstance(f, dict))
+            location = case.get('expected_location', {'file': 'customer.py', 'lines': [2, 3]})
+            checks['correct_file_location'] = any(f.get('file') == location['file'] and f.get('line') in location['lines'] for f in findings if isinstance(f, dict))
     return checks
+
+
+def allowed_fixture_changes(changed, allowed, index_unchanged):
+    """Allow declared sources and Python test bytecode, never hidden source/config edits."""
+    def permitted(name):
+        path = Path(name)
+        if name in allowed:
+            return True
+        source = path.parent.parent / (path.name.split('.', 1)[0] + '.py')
+        return path.parent.name == '__pycache__' and path.suffix == '.pyc' and source.as_posix() in allowed
+    return index_unchanged and all(permitted(name) for name in changed)
 
 
 def evaluate(provider, variant, name, case, output, baseline, timeout, baseline_skills=None):
@@ -117,6 +130,10 @@ def evaluate(provider, variant, name, case, output, baseline, timeout, baseline_
                 dest = skill_root / Path(relative).relative_to('skills')
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_bytes(data)
+        if case.get('project_guidance'):
+            guidance = (ROOT / 'templates/AGENTS.md').read_text() if variant == 'current' else subprocess.run(
+                ['git', 'show', f'{baseline}:templates/AGENTS.md'], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+            (workspace / 'AGENTS.md').write_text(guidance)
         if 'staged' in case:
             smoke.run(['git', '-c', 'user.name=Evaluation', '-c', 'user.email=evaluation@example.invalid', 'add', 'customer.py'], cwd=workspace)
             smoke.run(['git', '-c', 'user.name=Evaluation', '-c', 'user.email=evaluation@example.invalid', 'commit', '-qm', 'fixture'], cwd=workspace)
@@ -129,7 +146,7 @@ def evaluate(provider, variant, name, case, output, baseline, timeout, baseline_
         bodies = {skill: (skill_root / skill / 'SKILL.md').read_text().split('---', 2)[-1].strip() for skill in smoke.ALL_SKILLS}
         reference = skill_root / case['reference'] if case.get('reference') else None
         reference_body = reference.read_text().strip() if reference and reference.exists() else None
-        command, version = smoke.provider_command(provider, workspace, case['prompt'], True)
+        command, version = smoke.provider_command(provider, workspace, case['prompt'], case.get('read_only', True))
         # Keep the existing configured provider/model. No credentials are copied.
         created, added = smoke.add_smoke_trust_entry(workspace) if provider == 'codex' else (False, False)
         started = datetime.now(timezone.utc).isoformat()
@@ -150,8 +167,29 @@ def evaluate(provider, variant, name, case, output, baseline, timeout, baseline_
         strings, tid = trace_strings(result.stdout) if provider == 'codex' else ([], None)
         loaded = [s for s, body in bodies.items() if any(body in value for value in strings)]
         ref_loaded = bool(reference_body and any(reference_body in value for value in strings))
-        unchanged = initial == smoke.snapshot(workspace) and index_before == smoke.run(['git', 'diff', '--cached'], cwd=workspace).stdout
-        checks = mechanical_checks(case, answer, events, unchanged, text)
+        final = smoke.snapshot(workspace)
+        changed = sorted(k for k in set(initial) | set(final) if initial.get(k) != final.get(k))
+        index_unchanged = index_before == smoke.run(['git', 'diff', '--cached'], cwd=workspace).stdout
+        unchanged = not changed and index_unchanged
+        validations = []
+        for number, code in enumerate(case.get('validations', [])):
+            checked = subprocess.run([sys.executable, '-I', '-c', code], cwd=workspace, capture_output=True, text=True, timeout=30)
+            (case_dir / f'validation-{number}.txt').write_text(checked.stdout + checked.stderr)
+            validations.append({'command': [sys.executable, '-I', '-c', '<versioned fixture assertion>'], 'scope': f'validation {number}', 'exit_code': checked.returncode})
+        if case.get('read_only', True):
+            checks = mechanical_checks(case, answer, events, unchanged, text)
+        else:
+            checks = {'terminal_event': any(e.get('type') == 'turn.completed' for e in events),
+                      'only_allowed_files_changed': allowed_fixture_changes(changed, case['allowed_changes'], index_unchanged),
+                      'independent_validations': bool(validations) and all(v['exit_code'] == 0 for v in validations)}
+        usage = smoke.codex_token_usage(result.stdout)
+
+        for relative in set(case['files']) | set(case.get('allowed_changes', [])):
+            artifact = workspace / relative
+            if artifact.is_file() and artifact.resolve().is_relative_to(workspace.resolve()):
+                dest = case_dir / 'artifacts' / relative
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(artifact.read_bytes())
         quota = smoke.provider_quota_blocked(result.stdout, result.stderr)
         infrastructure = sandbox_blocked(events, strings)
         return {'result': 'blocked' if quota or infrastructure else 'mechanical_pass' if result.returncode == 0 and all(checks.values()) else 'failed',
@@ -160,6 +198,9 @@ def evaluate(provider, variant, name, case, output, baseline, timeout, baseline_
                 'finished': datetime.now(timezone.utc).isoformat(), 'checks': checks,
                 'skills_observed_in_tool_output': loaded, 'reference_observed_in_tool_output': ref_loaded,
                 'reference_sha256': digest(reference_body.encode()) if reference_body else None,
+                'codex_token_usage': usage, 'usage_basis': 'native_session_counters' if usage else 'unavailable',
+                'changed_files': changed, 'index_unchanged': index_unchanged, 'independent_validations': validations,
+                'fixture_final_sha256': {k: final.get(k) for k in case['files']},
                 'configuration_sha256': config_hashes, 'fixture_initial_sha256': {k: initial[k] for k in case['files']},
                 'stdout_sha256': digest(result.stdout.encode()), 'answer': answer, 'answer_text': text,
                 'semantic_verdict': 'pending_manual_review', 'limits': 'Mechanical checks are not semantic approval; exact tool output reads establish loading, not causal effectiveness.'}

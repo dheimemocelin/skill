@@ -1,0 +1,30 @@
+{
+  "codex": {
+    "seven_skills_at_native_path": true,
+    "existing_files_preserved": true,
+    "new_staging_for_update": true,
+    "baseline_to_current_update": true,
+    "conflicts_detected_and_reviewed": [
+      "ai-engineering/SKILL.md"
+    ],
+    "local_customizations_preserved": true,
+    "project_guidance_merged_without_replacement": true,
+    "generator_refuses_nonempty_consumer": true,
+    "runtime_discovery": "not executed by this filesystem check",
+    "updated_files": 9
+  },
+  "claude": {
+    "seven_skills_at_native_path": true,
+    "existing_files_preserved": true,
+    "new_staging_for_update": true,
+    "baseline_to_current_update": true,
+    "conflicts_detected_and_reviewed": [
+      "ai-engineering/SKILL.md"
+    ],
+    "local_customizations_preserved": true,
+    "project_guidance_merged_without_replacement": true,
+    "generator_refuses_nonempty_consumer": true,
+    "runtime_discovery": "not executed by this filesystem check",
+    "updated_files": 9
+  }
+}
