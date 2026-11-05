@@ -1,0 +1,380 @@
+{
+  "date": "2026-11-05",
+  "provider": "codex-cli 0.166.0",
+  "baseline": "9a774be",
+  "sandbox": "read-only",
+  "helper": "/usr/local/libexec/engineering-os/bwrap",
+  "results": [
+    {
+      "run_id": "20261105T142852Z",
+      "case": "architecture",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1c-d62c-7fb1-af92-cf6aaabab4aa",
+      "stdout_sha256": "7e08d0afe649821433a7391056ecfa63e4d42990db1c7d9bfb19899036fc701e",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "sync_selected": true,
+        "decision_explained": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "choice": "sync",
+        "rationale": "Keep receipt processing synchronous. At 20 requests per minute with 8ms of local computation, the stated workload does not justify a distributed queue. There are no slow external side effects or durable backlog requirements, and operating one service favors simplicity. Validate total request p99 against the 200ms budget; computation time alone does not establish it.",
+        "revisit_condition": "Reconsider a queue if measurements show bursts or processing time threatening the 200ms p99 budget, or requirements introduce durable deferred work, slow side effects, or independent worker scaling.",
+        "tradeoffs": [
+          "Synchronous processing provides immediate results and simpler failure handling, deployment, and observability.",
+          "Processing remains coupled to request lifetime and service capacity, without durable buffering.",
+          "A queue could buffer bursts and support asynchronous retries, but adds infrastructure, delivery semantics, idempotency requirements, and operational overhead."
+        ]
+      },
+      "fixture_sha256": {
+        "requirements.md": "b88208e75c581e360bffc3f1849399545be1b1e87cd384acee07ba098d1db7ae"
+      },
+      "configuration_digest": "e3b266c373a1696ce023bff31b727209fb67d1d4f54a4b52da3bc53efa28a647"
+    },
+    {
+      "run_id": "20261105T142852Z",
+      "case": "architecture",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1d-2906-7200-b2a5-18ed0d21dfaf",
+      "stdout_sha256": "364056add8e675bbc2b9c919b143204dad2a4fcb1f2214fe2665797a107b1c70",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "sync_selected": true,
+        "decision_explained": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": true,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "choice": "sync",
+        "rationale": "At 20 requests per minute with 8ms of local computation, there is no demonstrated need for a distributed queue. Synchronous processing is the simplest fit for the 200ms p99 budget and the team's single-service operations. Actual end-to-end p99 remains unverified. No slow external effects, durable backlog requirement, or established growth forecast justifies queue infrastructure now.",
+        "revisit_condition": "Reconsider if measurements show bursts or sustained load exhausting capacity or threatening the 200ms p99 budget, or if requirements introduce slow side effects, durable deferred processing, or independent worker scaling.",
+        "tradeoffs": [
+          "Synchronous processing keeps completion and error reporting immediate and reduces operational complexity.",
+          "Requests remain coupled to processing availability and duration; there is no durable buffer during overload or outages.",
+          "A queue could buffer bursts and support independent workers, but adds infrastructure, retries, duplicate handling, monitoring, and asynchronous completion semantics."
+        ]
+      },
+      "fixture_sha256": {
+        "requirements.md": "b88208e75c581e360bffc3f1849399545be1b1e87cd384acee07ba098d1db7ae"
+      },
+      "configuration_digest": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "security",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1d-f981-7121-8880-bf57eac63750",
+      "stdout_sha256": "078084cdf6db6b792a02f56588e0c454b4472c8a4ba8c0fa58e197e07d46f2d0",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "findings": [
+          {
+            "file": "customer.py",
+            "line": 3,
+            "impact": "High: cross-tenant customer data disclosure through missing authorization.",
+            "scenario": "An authenticated user supplies a guessed customer_id belonging to another tenant. get_customer ignores user and returns db.get(customer_id), which contract.md states can return any tenant's row.",
+            "fix": "Scope the database lookup to the authenticated user's tenant and the requested customer ID. Deny access when no customer matches both."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "customer.py": "866bf0f984725b7eab9a33af3b58db78b9843bbff3ccdf9ff8340655e60d5cf3",
+        "contract.md": "3ea015dafc8a4b0a43e87984b262528bd6a10d8aab08b6f437672e7b653eb8e2"
+      },
+      "configuration_digest": "e3b266c373a1696ce023bff31b727209fb67d1d4f54a4b52da3bc53efa28a647"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "security",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1e-3029-78f0-8b0a-f861f683f2b3",
+      "stdout_sha256": "2b9f168054d7539b6ada3c4fdcc98fcc097d4ae35a4f2455ddfe4fcb99749702",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": true,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "findings": [
+          {
+            "file": "customer.py",
+            "line": 3,
+            "impact": "High: authenticated users can read other tenants' customer records.",
+            "scenario": "A user supplies a guessed customer_id belonging to another tenant. get_customer ignores user and returns db.get(customer_id) without authorization. contract.md confirms IDs are guessable and db.get returns any tenant's row.",
+            "fix": "Scope the lookup to the authenticated user's tenant and reject records outside that tenant before returning customer data."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "customer.py": "866bf0f984725b7eab9a33af3b58db78b9843bbff3ccdf9ff8340655e60d5cf3",
+        "contract.md": "3ea015dafc8a4b0a43e87984b262528bd6a10d8aab08b6f437672e7b653eb8e2"
+      },
+      "configuration_digest": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "staged-review",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1e-7c25-7f90-9278-5b79b0a018c7",
+      "stdout_sha256": "92fb59febbf6ec37749ac4936f4da75302560f567d306d81f28c706fd435deb4",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "findings": [
+          {
+            "file": "customer.py",
+            "line": 2,
+            "impact": "High: removes tenant authorization, exposing other tenants' customer data.",
+            "scenario": "A user supplies a customer_id belonging to another tenant; the staged code returns that customer's record instead of raising PermissionError.",
+            "fix": "Restore the tenant comparison and raise PermissionError before returning a record belonging to another tenant."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "customer.py": "31acd36820f9703284ce0d815842b619c88c2c6fe2d52d8fad8c0831d7b4a2b3"
+      },
+      "configuration_digest": "e3b266c373a1696ce023bff31b727209fb67d1d4f54a4b52da3bc53efa28a647"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "staged-review",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1e-b8eb-7151-aa43-420d547a4c6c",
+      "stdout_sha256": "f299ca982717be2be2d5dd408d4bb78ee0883a736caa217a6f4d7e60864bf32a",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true,
+        "correct_file_location": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": true,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "findings": [
+          {
+            "file": "customer.py",
+            "line": 2,
+            "impact": "High: removing the tenant authorization check allows cross-tenant customer data access.",
+            "scenario": "A user supplies a customer_id belonging to another tenant. The staged version returns that customer's record; HEAD raises PermissionError.",
+            "fix": "Restore the comparison between the customer's tenant and the user's tenant, raising PermissionError on mismatch before returning the record."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "customer.py": "31acd36820f9703284ce0d815842b619c88c2c6fe2d52d8fad8c0831d7b4a2b3"
+      },
+      "configuration_digest": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "mcp",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1e-f31a-7440-8c3c-7fd495de9da2",
+      "stdout_sha256": "a3a7ffb7dc7ab61614d54453796fa04ad7d0e8cc70ca9d63264ce26d4eb509f3",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "authorization",
+            "impact": "Critical: no authenticated tenant-owner authorization is enforced.",
+            "scenario": "A caller supplies another tenant's tenant_id and customer_id to modify its customer.",
+            "fix": "Authenticate the caller, verify tenant-owner privileges, derive tenant scope from trusted authentication context, and verify the customer belongs to that tenant before updating."
+          },
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "High: a write operation is incorrectly advertised as read-only.",
+            "scenario": "A tool consumer relying on this hint permits update_customer under a read-only policy.",
+            "fix": "Set readOnlyHint to false; enforce write authorization independently of annotations."
+          },
+          {
+            "field": "retry",
+            "impact": "High: retries can repeat an already committed operation.",
+            "scenario": "The backend commits an update, but the response times out; a blind retry repeats the write and potentially its side effects.",
+            "fix": "Define an idempotency key with atomic backend deduplication and outcome lookup. Reconcile ambiguous outcomes before retrying."
+          },
+          {
+            "field": "errors",
+            "impact": "Critical: error responses explicitly expose credentials.",
+            "scenario": "An upstream failure returns an Authorization header containing a bearer token to the caller.",
+            "fix": "Return sanitized errors with explicitly allowlisted fields; exclude credentials and sensitive headers from every response path."
+          },
+          {
+            "field": "inputSchema",
+            "impact": "Medium: incomplete calls and unspecified fields pass schema validation.",
+            "scenario": "An empty object or an update without customer_id is accepted by the schema, leaving target selection and update behavior undefined.",
+            "fix": "Require customer_id and the intended update fields, reject additional properties, and specify email validation. Remove caller-controlled tenant_id if tenant scope is derived from authentication."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "263aea622d1ba4a06f227a0188aba542a984d2dfb92a2869e011a025e2a64456"
+      },
+      "configuration_digest": "e3b266c373a1696ce023bff31b727209fb67d1d4f54a4b52da3bc53efa28a647"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "mcp",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "failed",
+      "review_basis": "MCP current omits inputSchema missing required fields",
+      "thread_id": "01a1ac1f-5827-7300-b4a6-6b015c9d9598",
+      "stdout_sha256": "beea6420e90d6cbe83c760e9a332462f714d76040dcc16cb060047c204d706dc",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "Misclassifies a customer mutation as read-only, potentially misleading client approval and execution decisions.",
+            "scenario": "A client treats update_customer as a read-only operation even though it changes customer data.",
+            "fix": "Set readOnlyHint to false and describe the write side effect. Enforce authorization server-side independently of annotations."
+          },
+          {
+            "field": "authorization",
+            "impact": "Trusting caller-supplied tenant_id permits cross-tenant writes and does not enforce the authenticated tenant-owner requirement.",
+            "scenario": "A caller supplies another tenant's ID and customer ID, or an authenticated non-owner attempts an update.",
+            "fix": "Derive tenant identity from authenticated context, verify tenant-owner authority, and ensure the target customer belongs to that tenant before writing. Reject any supplied tenant_id mismatch."
+          },
+          {
+            "field": "retry",
+            "impact": "Blind retries can repeat a write that already committed.",
+            "scenario": "The backend commits an update, the response times out, and the tool retries without determining the first attempt's outcome.",
+            "fix": "Use a backend-enforced idempotency mechanism or inspect the original operation's outcome before retrying an uncertain write."
+          },
+          {
+            "field": "errors",
+            "impact": "Returning upstream Authorization headers exposes credentials, violating the response confidentiality requirement.",
+            "scenario": "An upstream failure causes an Authorization header containing a bearer token to appear in the tool response.",
+            "fix": "Return sanitized, actionable errors using an allowlist of safe fields; exclude Authorization and all other credentials from every response."
+          }
+        ]
+      },
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "263aea622d1ba4a06f227a0188aba542a984d2dfb92a2869e011a025e2a64456"
+      },
+      "configuration_digest": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "negative",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1f-b71d-72c0-a4da-1bca065bb251",
+      "stdout_sha256": "13d0c48a46d526f90a5cbdb98c14436f905cbbda3d190c459165916bd2232e69",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "no_command_execution": true,
+        "nonempty_answer": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": "MCP (Model Context Protocol) is an open standard that lets AI applications connect to external tools and data sources through a consistent interface.",
+      "fixture_sha256": {},
+      "configuration_digest": "e3b266c373a1696ce023bff31b727209fb67d1d4f54a4b52da3bc53efa28a647"
+    },
+    {
+      "run_id": "20261105T143007Z",
+      "case": "negative",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "semantic_verdict": "passed",
+      "review_basis": "Reviewed against predeclared case rubric",
+      "thread_id": "01a1ac1f-ce65-77f1-b6ea-ea52afaf542c",
+      "stdout_sha256": "9cafc8259902784745a8a2345a180019adfb0170fc96dfa41c65b13e8cc00cdc",
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "no_command_execution": true,
+        "nonempty_answer": true
+      },
+      "reference_exact_body_in_decoded_native_tool_output": {
+        "skills/software-engineering/references/design-review.md": false,
+        "skills/ai-engineering/references/mcp-engineering.md": false
+      },
+      "answer": "MCP (Model Context Protocol) is an open standard that lets AI applications connect to external tools and data sources through a shared interface.",
+      "fixture_sha256": {},
+      "configuration_digest": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6"
+    }
+  ],
+  "limitations": [
+    "Single pair per case; explicit skill activation, not spontaneous discovery.",
+    "Automatic read detector misses JSON-encoded nested outputs; evidence decoded offline without changing evaluator.",
+    "Claude CLI unavailable."
+  ]
+}

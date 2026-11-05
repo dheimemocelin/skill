@@ -68,6 +68,10 @@ Provider smoke tests use the actual installed CLIs and isolated fixtures. Run `p
 
 The validator checks the seven expected skill directories, required frontmatter fields, names, descriptions, and local Markdown links. GitHub Actions runs it on pushes and pull requests.
 
+## Selective capability improvements
+
+See the [AI Templates audit](docs/ai-templates-audit.md) for source decisions, licensing limits and the three incremental improvements. Skill changes follow the [evaluation procedure](docs/skill-evaluation.md). Architecture/security review and MCP guidance load only for relevant tasks; no external component installation is required.
+
 ## Design and attribution
 
 The skills are original instructions informed by the practices described in the projects listed in [SOURCES.md](SOURCES.md). Their code and documents are not bundled here. Optional upstream tools remain separate dependencies and must be installed and reviewed independently.
@@ -411,3 +415,7 @@ git diff --check
 Use `python3` on Linux/macOS. All original 38 tests are retained. New tests exercise real Node success/failure/recovery and process timeout, profile restrictions, Codex JSONL unit fixtures, authorization, durable starts, session checkpoints, unknown outcomes, exhausted budgets and preservation of completed work. Unit Codex fixtures never consume provider quota.
 
 See [v1.1 evidence and audit](tests/evidence/harness-lite-v1-1.md) for exact results, measured provider usage and scope. Future work: execute actual framework suites on representative projects, confirm the CI matrix, evaluate isolated write permissions and native reviewer integration. These require their own safety criteria and evidence.
+
+## LIA integration candidate
+
+Candidate `2.0.1-rc.1` has a [readiness report](docs/mcp-release-validation.md) and a [validated core manifest](tests/evidence/release-core-manifest.json). It is a local candidate, not a published release. The report distinguishes standards checks, real Codex behavior and unverified environments.

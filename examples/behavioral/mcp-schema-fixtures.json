@@ -1,0 +1,146 @@
+[
+  {
+    "id": "valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id"
+      ],
+      "additionalProperties": false
+    },
+    "input": {
+      "customer_id": "c1"
+    },
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customer_id, note=\"\"):\n    return customer_id\n"
+  },
+  {
+    "id": "missing_input",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id"
+      ],
+      "additionalProperties": false
+    },
+    "input": {},
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customer_id, note=\"\"):\n    return customer_id\n"
+  },
+  {
+    "id": "missing_contract_required",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "input": {},
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customer_id, note=\"\"):\n    return customer_id\n"
+  },
+  {
+    "id": "wrong_type",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id"
+      ],
+      "additionalProperties": false
+    },
+    "input": {
+      "customer_id": 42
+    },
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customer_id, note=\"\"):\n    return customer_id\n"
+  },
+  {
+    "id": "unknown_property",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id"
+      ],
+      "additionalProperties": false
+    },
+    "input": {
+      "customer_id": "c1",
+      "extra": true
+    },
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customer_id, note=\"\"):\n    return customer_id\n"
+  },
+  {
+    "id": "implementation_mismatch",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id"
+      ],
+      "additionalProperties": false
+    },
+    "input": {
+      "customer_id": "c1"
+    },
+    "contract": "customer_id is mandatory; note is optional with empty default. Reject invalid inputs before calling update(**arguments).",
+    "implementation": "def update(customerId, note=\"\"):\n    return customerId\n"
+  }
+]

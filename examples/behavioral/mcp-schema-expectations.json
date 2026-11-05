@@ -1,0 +1,38 @@
+{
+  "valid": {
+    "schema_valid": true,
+    "input_valid": true,
+    "contract_matches_schema": true,
+    "implementation_compatible": true
+  },
+  "missing_input": {
+    "schema_valid": true,
+    "input_valid": false,
+    "contract_matches_schema": true,
+    "implementation_compatible": false
+  },
+  "missing_contract_required": {
+    "schema_valid": true,
+    "input_valid": true,
+    "contract_matches_schema": false,
+    "implementation_compatible": false
+  },
+  "wrong_type": {
+    "schema_valid": true,
+    "input_valid": false,
+    "contract_matches_schema": true,
+    "implementation_compatible": true
+  },
+  "unknown_property": {
+    "schema_valid": true,
+    "input_valid": false,
+    "contract_matches_schema": true,
+    "implementation_compatible": false
+  },
+  "implementation_mismatch": {
+    "schema_valid": true,
+    "input_valid": true,
+    "contract_matches_schema": true,
+    "implementation_compatible": false
+  }
+}

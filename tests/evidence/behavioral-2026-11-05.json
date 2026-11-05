@@ -1,0 +1,129 @@
+{
+  "baseline": "9a774be",
+  "provider": "codex-cli 0.166.0",
+  "runs": [
+    {
+      "run_id": "20261105T132158Z",
+      "case_spec_sha256": "ac5877e74213e2dedd3e96e6fe7a22576e544cf3047f54b7b970f66792f6d1d5",
+      "outcomes": [
+        {
+          "case": "architecture",
+          "variant": "baseline",
+          "result": "blocked",
+          "block_reason": "sandbox_unavailable",
+          "thread_id": "01a1abdf-9393-7400-8818-92bbc673e153",
+          "stdout_sha256": "ea6b2f3a108fe01528e55424d04e52876464598a9ecea838a8f616cfec17b2e0",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "sync_selected": false,
+            "decision_explained": false
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": true,
+          "semantic_verdict": "not_evaluable"
+        },
+        {
+          "case": "architecture",
+          "variant": "current",
+          "result": "blocked",
+          "block_reason": "sandbox_unavailable",
+          "thread_id": "01a1abdf-e09c-7242-a41a-98e961283fcc",
+          "stdout_sha256": "4ff663e089edf6669c9528603796cc67465f545c183807bde537e4aa505ebca9",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "sync_selected": false,
+            "decision_explained": false
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": true,
+          "semantic_verdict": "not_evaluable"
+        },
+        {
+          "case": "security",
+          "variant": "baseline",
+          "result": "blocked",
+          "block_reason": "sandbox_unavailable",
+          "thread_id": "01a1abe0-233a-7522-863d-7d9f1f466bcc",
+          "stdout_sha256": "043200ee985deeef91b26345712852e02bced7f8d4f9e3d47e990abc7e163c39",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "structured_findings": false,
+            "correct_file_location": false
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": true,
+          "semantic_verdict": "not_evaluable"
+        },
+        {
+          "case": "security",
+          "variant": "current",
+          "result": "blocked",
+          "block_reason": "sandbox_unavailable",
+          "thread_id": "01a1abe0-6855-79d2-85bb-55895428498c",
+          "stdout_sha256": "a2a8c8182a29c55333da553ff928a9098c5812d52d56ec9732452346029d95ce",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "structured_findings": false,
+            "correct_file_location": false
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": true,
+          "semantic_verdict": "not_evaluable"
+        }
+      ]
+    },
+    {
+      "run_id": "20261105T132340Z",
+      "case_spec_sha256": "ac5877e74213e2dedd3e96e6fe7a22576e544cf3047f54b7b970f66792f6d1d5",
+      "outcomes": [
+        {
+          "case": "negative",
+          "variant": "baseline",
+          "result": "mechanical_pass",
+          "block_reason": null,
+          "thread_id": "01a1abe1-230b-7852-816a-719a8009336c",
+          "stdout_sha256": "a7ad96306e9a074791cc87c538b97197a5569ddd7cd04893f65302d473d25dce",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "no_command_execution": true,
+            "nonempty_answer": true
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": null,
+          "semantic_verdict": "approved_manual_review",
+          "manual_review": "Correct one-sentence explanation of MCP; no command event, exact skill-read output, or fixture mutation observed."
+        },
+        {
+          "case": "negative",
+          "variant": "current",
+          "result": "mechanical_pass",
+          "block_reason": null,
+          "thread_id": "01a1abe1-345b-75d1-8182-c4c97c709a03",
+          "stdout_sha256": "01fabf3fe11d519b545f4a23bce8ad58756953ae4a299e483ff3ecbb8f9d40ac",
+          "checks": {
+            "terminal_event": true,
+            "fixture_unchanged": true,
+            "no_command_execution": true,
+            "nonempty_answer": true
+          },
+          "skills_observed_in_tool_output": [],
+          "reference_observed_in_tool_output": false,
+          "native_sandbox_failure_observed": null,
+          "semantic_verdict": "approved_manual_review",
+          "manual_review": "Correct one-sentence explanation of MCP; no command event, exact skill-read output, or fixture mutation observed."
+        }
+      ]
+    }
+  ],
+  "claude": "not_run: CLI absent"
+}

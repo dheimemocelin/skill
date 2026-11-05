@@ -6,6 +6,11 @@ description: Design, implement, debug, review, or test applications, backends, A
 # software-engineering
 
 
+## Conditional architecture and risk review
+
+For architecture decisions, public-contract changes, dependency/security review or browser regression planning, read [Architecture and regression review](references/design-review.md). Load only the relevant checks.
+
+
 ## Choose a working path
 
 | Task | Essential path | Completion evidence |

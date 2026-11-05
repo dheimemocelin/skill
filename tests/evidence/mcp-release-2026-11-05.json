@@ -1,0 +1,622 @@
+{
+  "candidate": "2.0.1-rc.1",
+  "baseline": "pre-fix complete local skill tree",
+  "results": [
+    {
+      "run_id": "20261105T144340Z",
+      "case": "mcp",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "18b2b583244cd9ff48f3b5aa1acc905da6f15bb0986c03e6617d541cb77cea84",
+      "thread_id": "01a1ac2a-62a4-7a11-ba9f-72e4685ef033",
+      "stdout_sha256": "ac7037b7702017030fc6b23ebc9940f87780637207fe8c2f32124452f56f6790",
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "a8044cffc809f7e1f9bad1f4320fc39d0591141f250489258e593f7de8ee3543"
+      },
+      "reference_sha256": "65424ba09854efdb9f2d660daa689c8b0a36ff42d01d55da7505ae1bd3a0b4e8",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "Misclassifies a write as read-only.",
+            "scenario": "A client uses the hint when deciding whether to request approval for a customer update.",
+            "fix": "Set readOnlyHint to false; enforce authorization independently of annotations."
+          },
+          {
+            "field": "inputSchema",
+            "impact": "Allows missing or empty mandatory arguments.",
+            "scenario": "Calls with omitted customer_id or email, or empty strings, satisfy the schema.",
+            "fix": "Require customer_id and email and add minLength: 1 to both; validate inputs server-side."
+          },
+          {
+            "field": "inputSchema.properties.tenant_id",
+            "impact": "Exposes tenant identity as caller-controlled input.",
+            "scenario": "A caller supplies another tenant's identifier.",
+            "fix": "Remove tenant_id from arguments, reject unknown fields, and derive tenant identity from authenticated context."
+          },
+          {
+            "field": "authorization",
+            "impact": "Fails to enforce tenant-owner authorization and customer isolation.",
+            "scenario": "A non-owner or another tenant's owner attempts to update a customer.",
+            "fix": "Require an authenticated tenant owner and verify server-side that the customer belongs to that authenticated tenant before writing."
+          },
+          {
+            "field": "retry",
+            "impact": "Can repeat a write that already committed.",
+            "scenario": "The backend commits an update, the response times out, and an unconditional retry repeats the operation.",
+            "fix": "Inspect the outcome before retrying uncertain writes or use a server-enforced idempotency mechanism."
+          },
+          {
+            "field": "errors",
+            "impact": "Leaks credentials in responses.",
+            "scenario": "An upstream failure returns headers containing Authorization.",
+            "fix": "Return sanitized errors using an explicit allowlist of safe details; exclude credentials and sensitive headers."
+          }
+        ]
+      },
+      "configuration_sha256": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6",
+      "verdict": "passed_manual_review",
+      "rubric": "Explicit-contract obligations plus security/replay/hints/secrets"
+    },
+    {
+      "run_id": "20261105T144340Z",
+      "case": "mcp",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "18b2b583244cd9ff48f3b5aa1acc905da6f15bb0986c03e6617d541cb77cea84",
+      "thread_id": "01a1ac2a-a932-7693-a261-f10a8e935934",
+      "stdout_sha256": "4ef2316a8d5b6b4e36cf3824448595629eaf38a5a371497f617d92496030a16a",
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "a8044cffc809f7e1f9bad1f4320fc39d0591141f250489258e593f7de8ee3543"
+      },
+      "reference_sha256": "67b86b640ab418a46c5362bddd84f3ba732a5fc4cc67dbe0605019ba68c5bdb7",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "inputSchema.required",
+            "impact": "The schema accepts requests missing mandatory arguments.",
+            "scenario": "{} passes the advertised schema despite customer_id and email being mandatory.",
+            "fix": "Add required: [\"customer_id\", \"email\"]."
+          },
+          {
+            "field": "inputSchema.properties.customer_id and inputSchema.properties.email",
+            "impact": "Empty strings are accepted despite the nonempty argument requirement.",
+            "scenario": "{\"customer_id\":\"\",\"email\":\"\"} passes the advertised schema.",
+            "fix": "Add minLength: 1 to both string schemas."
+          },
+          {
+            "field": "authorization and inputSchema.properties.tenant_id",
+            "impact": "Caller-controlled tenant identity permits cross-tenant access and does not establish owner authorization.",
+            "scenario": "A caller supplies another tenant's ID and targets one of its customers.",
+            "fix": "Derive tenant identity from authenticated context, enforce tenant-owner authorization and customer ownership server-side, and remove tenant_id from accepted inputs. Set additionalProperties: false to reject undeclared inputs."
+          },
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "The tool incorrectly advertises a write as read-only, potentially misleading client approval behavior.",
+            "scenario": "A client treats an email update as a read operation based on the annotation.",
+            "fix": "Set readOnlyHint to false; enforce authorization independently of annotations."
+          },
+          {
+            "field": "retry",
+            "impact": "Blind retries can repeat a committed write or its associated side effects.",
+            "scenario": "The backend commits an update, the response times out, and the client repeats the operation.",
+            "fix": "Require outcome inspection before retrying an uncertain write, or provide a server-enforced idempotency mechanism."
+          },
+          {
+            "field": "errors",
+            "impact": "Returning upstream Authorization headers exposes credentials and directly violates the requirements.",
+            "scenario": "An upstream failure returns an error containing an Authorization credential.",
+            "fix": "Return sanitized, allowlisted error information and exclude credentials from all responses."
+          }
+        ]
+      },
+      "configuration_sha256": "11f2987faee7d6150531ab49ba90112b37b4b1bcfaf2ecef2552ab78c7bafbe4",
+      "verdict": "passed_manual_review",
+      "rubric": "Explicit-contract obligations plus security/replay/hints/secrets"
+    },
+    {
+      "run_id": "20261105T144340Z",
+      "case": "mcp-schema",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "18b2b583244cd9ff48f3b5aa1acc905da6f15bb0986c03e6617d541cb77cea84",
+      "thread_id": "01a1ac2a-fe71-7513-a1bd-2769ac4bbf20",
+      "stdout_sha256": "6b011ecefb77c07462622dc6d041c24e18d802b63b12801befa4cf54334d4697",
+      "fixture_sha256": {
+        "schema-cases.json": "d082f41e93c04077cc8ac3d016eb0ab6fccb14efb481a337800e90f8caeeacd6"
+      },
+      "reference_sha256": "65424ba09854efdb9f2d660daa689c8b0a36ff42d01d55da7505ae1bd3a0b4e8",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "missing_input.input.customer_id",
+            "impact": "Input fails validation; direct invocation also fails because customer_id is missing.",
+            "scenario": "Arguments are {}.",
+            "fix": "Reject before invocation; supply a nonempty string customer_id."
+          },
+          {
+            "field": "missing_contract_required.schema.required",
+            "impact": "Valid JSON Schema permits omission of a contractually mandatory argument, causing direct invocation to fail.",
+            "scenario": "{} passes schema validation but update requires customer_id.",
+            "fix": "Add required: [\"customer_id\"]."
+          },
+          {
+            "field": "wrong_type.input.customer_id",
+            "impact": "Input fails schema validation, although Python accepts and returns the integer without coercion.",
+            "scenario": "customer_id is 42.",
+            "fix": "Reject before invocation; require a nonempty string without coercion."
+          },
+          {
+            "field": "unknown_property.input.extra",
+            "impact": "Input fails schema validation; direct invocation fails on the unexpected keyword.",
+            "scenario": "Arguments include extra: true.",
+            "fix": "Reject before invocation; submit only permitted properties."
+          },
+          {
+            "field": "implementation_mismatch.implementation.customerId",
+            "impact": "Schema-valid arguments cannot bind to the implementation parameter.",
+            "scenario": "Arguments contain customer_id, but update declares customerId.",
+            "fix": "Rename the implementation parameter and its references to customer_id."
+          }
+        ],
+        "cases": {
+          "valid": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "missing_input": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "missing_contract_required": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": false,
+            "implementation_compatible": false
+          },
+          "wrong_type": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "unknown_property": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "implementation_mismatch": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          }
+        }
+      },
+      "configuration_sha256": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6",
+      "verdict": "exploratory_ambiguous_binding_rubric_not_scored"
+    },
+    {
+      "run_id": "20261105T144340Z",
+      "case": "mcp-schema",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "18b2b583244cd9ff48f3b5aa1acc905da6f15bb0986c03e6617d541cb77cea84",
+      "thread_id": "01a1ac2b-9af5-7032-8e82-0a03e0997cca",
+      "stdout_sha256": "5a2209d1aabd6aa4c5b4db792b7aff8987abab71c1e41e5b0964657441a14e49",
+      "fixture_sha256": {
+        "schema-cases.json": "d082f41e93c04077cc8ac3d016eb0ab6fccb14efb481a337800e90f8caeeacd6"
+      },
+      "reference_sha256": "67b86b640ab418a46c5362bddd84f3ba732a5fc4cc67dbe0605019ba68c5bdb7",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "missing_input.input.customer_id",
+            "impact": "Input fails schema validation; direct invocation raises TypeError for the missing argument.",
+            "scenario": "The input is {} while customer_id is required.",
+            "fix": "Reject the input before invocation; supply a nonempty customer_id string."
+          },
+          {
+            "field": "missing_contract_required.schema.required",
+            "impact": "The schema is valid JSON Schema but allows inputs that violate the contract and cannot invoke the implementation.",
+            "scenario": "The schema accepts {}, but update(**{}) raises TypeError.",
+            "fix": "Add required: [\"customer_id\"]. Keep note optional."
+          },
+          {
+            "field": "wrong_type.input.customer_id",
+            "impact": "Input fails schema validation, but direct invocation accepts 42 and returns it without coercion.",
+            "scenario": "Python does not enforce the schema's string constraint.",
+            "fix": "Validate arguments against the schema and reject the integer before invocation."
+          },
+          {
+            "field": "unknown_property.input.extra",
+            "impact": "Input fails schema validation; direct invocation raises TypeError for an unexpected keyword argument.",
+            "scenario": "extra is forbidden by additionalProperties: false and absent from the function signature.",
+            "fix": "Reject unknown properties before invocation."
+          },
+          {
+            "field": "implementation_mismatch.implementation.customerId",
+            "impact": "Schema-valid input cannot invoke the implementation.",
+            "scenario": "The input supplies customer_id, but the function expects customerId; direct invocation raises TypeError.",
+            "fix": "Rename the implementation parameter to customer_id."
+          },
+          {
+            "field": "implementation",
+            "impact": "Direct update(**arguments) does not enforce the contract's requirement to reject invalid inputs before calling update.",
+            "scenario": "wrong_type reaches the function; missing_input and unknown_property fail during invocation rather than during prior validation.",
+            "fix": "Validate arguments against the corrected schema before dispatching update(**arguments)."
+          }
+        ],
+        "cases": {
+          "valid": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "missing_input": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "missing_contract_required": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": false,
+            "implementation_compatible": false
+          },
+          "wrong_type": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "unknown_property": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "implementation_mismatch": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          }
+        }
+      },
+      "configuration_sha256": "11f2987faee7d6150531ab49ba90112b37b4b1bcfaf2ecef2552ab78c7bafbe4",
+      "verdict": "exploratory_ambiguous_binding_rubric_not_scored"
+    },
+    {
+      "run_id": "20261105T144604Z",
+      "case": "mcp-schema",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "e582d091aadad55957c46f7aa24af2f455e03fb24bd860a3fc0c39f7ef4c6ccd",
+      "thread_id": "01a1ac2c-9298-7320-8584-db5722505d2b",
+      "stdout_sha256": "9d29ec5119ee571baa37c094ad8675815b689c1194888a791e54a66ce67fe9e6",
+      "fixture_sha256": {
+        "schema-cases.json": "d082f41e93c04077cc8ac3d016eb0ab6fccb14efb481a337800e90f8caeeacd6"
+      },
+      "reference_sha256": "65424ba09854efdb9f2d660daa689c8b0a36ff42d01d55da7505ae1bd3a0b4e8",
+      "exact_reference_observed_in_native_tool_output": false,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "missing_input.input.customer_id",
+            "impact": "Input fails schema validation and Python argument binding.",
+            "scenario": "The supplied object omits mandatory customer_id.",
+            "fix": "Reject this input before calling update; callers must supply a nonempty string customer_id."
+          },
+          {
+            "field": "missing_contract_required.schema.required",
+            "impact": "The schema is valid JSON Schema but permits inputs that violate the contract and cannot bind to update.",
+            "scenario": "The supplied empty object passes validation because required is omitted.",
+            "fix": "Add required: [\"customer_id\"] to the schema."
+          },
+          {
+            "field": "wrong_type.input.customer_id",
+            "impact": "Input fails schema validation even though Python argument binding succeeds; binding does not enforce value types.",
+            "scenario": "customer_id is 42 instead of a string.",
+            "fix": "Reject this input before calling update, without coercion."
+          },
+          {
+            "field": "unknown_property.input.extra",
+            "impact": "Input fails schema validation and Python argument binding.",
+            "scenario": "The supplied extra property is forbidden by additionalProperties and unsupported by update.",
+            "fix": "Reject this input before calling update; callers must omit extra."
+          },
+          {
+            "field": "implementation_mismatch.implementation.customerId",
+            "impact": "Schema-valid input cannot bind to the implementation.",
+            "scenario": "The schema supplies customer_id, while update requires customerId.",
+            "fix": "Rename the implementation parameter and its references to customer_id."
+          }
+        ],
+        "cases": {
+          "valid": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "missing_input": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "missing_contract_required": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": false,
+            "implementation_compatible": false
+          },
+          "wrong_type": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "unknown_property": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "implementation_mismatch": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          }
+        }
+      },
+      "configuration_sha256": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6",
+      "verdict": "passed",
+      "oracle_mismatches": [],
+      "false_positive_review": "No finding on valid case or optional note; five invalid/contract/handler cases correctly distinguished"
+    },
+    {
+      "run_id": "20261105T144604Z",
+      "case": "mcp-schema",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "e582d091aadad55957c46f7aa24af2f455e03fb24bd860a3fc0c39f7ef4c6ccd",
+      "thread_id": "01a1ac2d-17ac-7761-98be-8881fbd4de24",
+      "stdout_sha256": "a7c519bc0bbb7897066509c53486017d62a4823f286bab56287d60f2fbf4a22b",
+      "fixture_sha256": {
+        "schema-cases.json": "d082f41e93c04077cc8ac3d016eb0ab6fccb14efb481a337800e90f8caeeacd6"
+      },
+      "reference_sha256": "67b86b640ab418a46c5362bddd84f3ba732a5fc4cc67dbe0605019ba68c5bdb7",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "missing_input.input.customer_id",
+            "impact": "Input fails validation and Python argument binding.",
+            "scenario": "The supplied empty object omits required customer_id.",
+            "fix": "Supply a nonempty string customer_id; reject this input before invocation."
+          },
+          {
+            "field": "missing_contract_required.schema.required",
+            "impact": "The schema is valid JSON Schema but permits inputs that violate the contract and fail Python argument binding.",
+            "scenario": "The empty input passes validation because properties does not require customer_id to be present.",
+            "fix": "Add required: [\"customer_id\"], keeping note optional."
+          },
+          {
+            "field": "wrong_type.input.customer_id",
+            "impact": "Input fails schema validation even though Python argument binding succeeds.",
+            "scenario": "customer_id is 42; Python signature binding does not enforce schema types.",
+            "fix": "Reject the numeric value before invocation; supply a nonempty string without coercion."
+          },
+          {
+            "field": "unknown_property.input.extra",
+            "impact": "Input fails schema validation and Python argument binding.",
+            "scenario": "extra is forbidden by additionalProperties: false and is not accepted by update.",
+            "fix": "Reject the supplied input before invocation; remove extra from the caller's arguments."
+          },
+          {
+            "field": "implementation_mismatch.implementation.customerId",
+            "impact": "Schema-valid input cannot bind to the implementation.",
+            "scenario": "The input supplies customer_id, but update requires customerId.",
+            "fix": "Rename the implementation parameter and its references to customer_id."
+          }
+        ],
+        "cases": {
+          "valid": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "missing_input": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "missing_contract_required": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": false,
+            "implementation_compatible": false
+          },
+          "wrong_type": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": true
+          },
+          "unknown_property": {
+            "schema_valid": true,
+            "input_valid": false,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          },
+          "implementation_mismatch": {
+            "schema_valid": true,
+            "input_valid": true,
+            "contract_matches_schema": true,
+            "implementation_compatible": false
+          }
+        }
+      },
+      "configuration_sha256": "11f2987faee7d6150531ab49ba90112b37b4b1bcfaf2ecef2552ab78c7bafbe4",
+      "verdict": "passed",
+      "oracle_mismatches": [],
+      "false_positive_review": "No finding on valid case or optional note; five invalid/contract/handler cases correctly distinguished"
+    },
+    {
+      "run_id": "20261105T144716Z",
+      "case": "mcp",
+      "variant": "baseline",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "ac5877e74213e2dedd3e96e6fe7a22576e544cf3047f54b7b970f66792f6d1d5",
+      "thread_id": "01a1ac2d-acea-7391-84e4-95599e142de7",
+      "stdout_sha256": "d8928b3fe65a686bdd9511cb238f5f23d9fa3f9ae0364f8b2867b19627c33e33",
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "263aea622d1ba4a06f227a0188aba542a984d2dfb92a2869e011a025e2a64456"
+      },
+      "reference_sha256": "65424ba09854efdb9f2d660daa689c8b0a36ff42d01d55da7505ae1bd3a0b4e8",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "Misclassifies a write as read-only, potentially misleading client approval and execution policies.",
+            "scenario": "A client treats update_customer as a read operation even though it changes customer data.",
+            "fix": "Set readOnlyHint to false; enforce authorization independently of annotations."
+          },
+          {
+            "field": "authorization",
+            "impact": "Allows impersonation and cross-tenant customer updates; authenticated tenant ownership is not enforced.",
+            "scenario": "A caller supplies another tenant's tenant_id or a customer_id belonging to another tenant.",
+            "fix": "Require authentication, verify the caller is a tenant owner, derive tenant scope from trusted identity, and verify the customer belongs to that tenant before writing."
+          },
+          {
+            "field": "inputSchema",
+            "impact": "Allows missing identifiers, missing update values, and unspecified fields, leaving the write contract ambiguous.",
+            "scenario": "An empty object or an update without customer_id passes the advertised schema.",
+            "fix": "Require customer_id and the intended update fields, define supported value constraints, reject unknown properties, and validate inputs server-side."
+          },
+          {
+            "field": "retry",
+            "impact": "Can repeat a committed write when a timeout leaves the outcome unknown.",
+            "scenario": "The backend commits the update, the response times out, and an unconditional retry repeats the operation.",
+            "fix": "Use a persisted idempotency key with deduplication, or inspect the original operation's outcome before retrying."
+          },
+          {
+            "field": "errors",
+            "impact": "Explicitly exposes credentials in responses, violating requirements.md.",
+            "scenario": "An upstream failure returns an Authorization header containing a bearer token to the caller.",
+            "fix": "Return allowlisted, sanitized error fields; exclude Authorization and other credential-bearing headers or payload values from every response."
+          }
+        ]
+      },
+      "configuration_sha256": "f36bdb1eaa156a03dd1227d55b745e91cef24ca6303b2c277b28e7fb36ebe4c6",
+      "verdict": "passed_manual_review",
+      "rubric": "Historical scenario: four explicit defects; schema incompleteness is conditional, not mandatory"
+    },
+    {
+      "run_id": "20261105T144716Z",
+      "case": "mcp",
+      "variant": "current",
+      "mechanical_result": "mechanical_pass",
+      "case_spec_sha256": "ac5877e74213e2dedd3e96e6fe7a22576e544cf3047f54b7b970f66792f6d1d5",
+      "thread_id": "01a1ac2e-149b-79c0-969c-c36ed2093408",
+      "stdout_sha256": "161f901faeedd920618d270dc521e93aac29f38a8645cc81d3eea9cc5ac26fc5",
+      "fixture_sha256": {
+        "tool.json": "189971b8bf760f6b7d9e0fcaef94286dcb4e408de171b9ea708a0d52c21e57c6",
+        "requirements.md": "263aea622d1ba4a06f227a0188aba542a984d2dfb92a2869e011a025e2a64456"
+      },
+      "reference_sha256": "67b86b640ab418a46c5362bddd84f3ba732a5fc4cc67dbe0605019ba68c5bdb7",
+      "exact_reference_observed_in_native_tool_output": true,
+      "checks": {
+        "terminal_event": true,
+        "fixture_unchanged": true,
+        "structured_findings": true
+      },
+      "answer": {
+        "findings": [
+          {
+            "field": "authorization",
+            "impact": "Caller-controlled tenant identity permits unauthorized or cross-tenant customer updates.",
+            "scenario": "A caller supplies another tenant's tenant_id and customer_id; the contract trusts those values without requiring authenticated ownership.",
+            "fix": "Require authentication, derive tenant identity from trusted authentication context, verify tenant-owner privileges, and enforce that the customer belongs to that tenant before writing."
+          },
+          {
+            "field": "retry",
+            "impact": "Retrying an already committed write can repeat side effects.",
+            "scenario": "The backend commits an update, but the response times out; the client blindly repeats the write.",
+            "fix": "Require an enforced idempotency mechanism or inspect the original operation's outcome before retrying an uncertain write."
+          },
+          {
+            "field": "errors",
+            "impact": "Returning upstream Authorization headers exposes credentials, violating the explicit requirement.",
+            "scenario": "An upstream failure causes a bearer token to be included in the tool response.",
+            "fix": "Return allowlisted, sanitized error fields and exclude credentials and sensitive headers from every response."
+          },
+          {
+            "field": "annotations.readOnlyHint",
+            "impact": "The tool incorrectly advertises a write as read-only, potentially misleading client approval and tool-selection behavior.",
+            "scenario": "A client treats update_customer as a read operation even though it modifies customer data.",
+            "fix": "Set readOnlyHint to false and describe the write side effect; enforce authorization server-side independently of annotations."
+          }
+        ]
+      },
+      "configuration_sha256": "11f2987faee7d6150531ab49ba90112b37b4b1bcfaf2ecef2552ab78c7bafbe4",
+      "verdict": "passed_manual_review",
+      "rubric": "Historical scenario: four explicit defects; schema incompleteness is conditional, not mandatory"
+    }
+  ]
+}

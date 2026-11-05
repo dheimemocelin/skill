@@ -1,9 +1,14 @@
 ---
 name: ai-engineering
-description: Build or evaluate LLM applications, agents, RAG and retrieval systems, prompts, and tool-using workflows. Use when model behavior, grounding, safety, evaluation, latency, or inference cost is part of the task.
+description: Build or evaluate LLM applications, agents, RAG and retrieval systems, prompts, MCP integrations, and tool-using workflows. Use when model behavior, grounding, safety, evaluation, latency, or inference cost is part of the task.
 ---
 
 # ai-engineering
+
+
+## MCP integrations
+
+For MCP server/client development or review, read [MCP integration contracts](references/mcp-engineering.md). Use software-engineering for implementation; evaluate model tool selection separately from protocol correctness.
 
 
 ## Choose the starting point

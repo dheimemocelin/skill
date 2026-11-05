@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Validate candidate 2.0.1-rc.1: clarify MCP JSON Schema required/instance/contract semantics, add six standards fixtures and paired pre-fix evaluation, and decode native nested tool evidence. See docs/mcp-release-validation.md; no superiority over baseline or published release is claimed.
+- Add opt-in paired behavioral evaluation fixtures and evidence; record real Codex sandbox blocks and a passing negative case without claiming skill efficacy. Fix Codex PATH discovery and evaluation result extraction.
+- Add conditional architecture/security review and MCP contract guidance; strengthen portable skill-reference validation and adapter regression coverage; document selective AI Templates research and skill evaluation limits.
 - Improve all seven skills with task-specific paths, activation boundaries, proportional workflows, dependency handling and observable completion examples.
 - Document v1.1 capabilities and measured smoke evidence, preserve runnable examples, and configure Python/Node validation for Windows, Linux and macOS (remote CI execution pending).
 - Add Harness Lite v1.1 optional read-only Codex CLI execution with explicit cost authorization, JSONL metadata, session checkpoints and no automatic replay; real Windows smoke passed on CLI 0.159.0.

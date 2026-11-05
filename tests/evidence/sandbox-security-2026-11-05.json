@@ -1,0 +1,34 @@
+{
+  "minimal": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "passed": true
+  },
+  "read": {
+    "exit_code": 0,
+    "stdout": "synthetic allowed data",
+    "stderr": "",
+    "passed": true
+  },
+  "outside_positive_control": true,
+  "write_denied": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nOSError: [Errno 30] Read-only file system: '/home/ubuntu/engos-probe-dbj4776l/outside.txt'",
+    "passed": true
+  },
+  "network_positive_control": true,
+  "network_denied": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/usr/lib/python3.12/socket.py\", line 852, in create_connection\n    raise exceptions[0]\n  File \"/usr/lib/python3.12/socket.py\", line 832, in create_connection\n    sock = socket(af, socktype, proto)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/socket.py\", line 233, in __init__\n    _socket.socket.__init__(self, family, type, proto, fileno)\nPermissionError: [Errno 1] Operation not permitted",
+    "passed": true
+  },
+  "security_context": {
+    "exit_code": 0,
+    "stdout": "engos_bwrap//&engos_unpriv_bwrap (enforce)\n\nCapEff:\t0000000000000000\nNoNewPrivs:\t1\nSeccomp:\t2",
+    "stderr": "",
+    "passed": true
+  }
+}

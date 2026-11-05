@@ -68,6 +68,26 @@ def validate_skill(path: Path) -> list[str]:
     elif len(description) > 1024:
         errors.append(f"{relative}: description exceeds 1024 characters")
 
+    errors.extend(validate_references(path))
+    return errors
+
+
+def validate_references(path: Path) -> list[str]:
+    """Keep local skill references portable across generated provider layouts."""
+    errors = []
+    skill_root = SKILLS.resolve()
+    for match in LINK_PATTERN.finditer(path.read_text(encoding="utf-8")):
+        target = match.group(1).split(maxsplit=1)[0].strip("<>")
+        if target.startswith(("https://", "http://", "mailto:", "#")):
+            continue
+        part = target.split("#", 1)[0]
+        if not part:
+            continue
+        resolved = (path.parent / part).resolve()
+        if not resolved.is_relative_to(skill_root):
+            errors.append(f"{path.relative_to(ROOT)}: skill entrypoint reference must stay within skills/: '{target}'")
+        elif not resolved.is_file():
+            errors.append(f"{path.relative_to(ROOT)}: skill reference is not a file: '{target}'")
     return errors
 
 
@@ -108,6 +128,9 @@ def main() -> int:
             continue
         errors.extend(validate_skill(skill_file))
 
+    for reference in SKILLS.rglob("*.md"):
+        if reference.name != "SKILL.md":
+            errors.extend(validate_references(reference))
     errors.extend(validate_links())
     if errors:
         print("Skill validation failed:")

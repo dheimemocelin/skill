@@ -72,10 +72,13 @@ def run(command: list[str], *, cwd: Path, timeout: int = 180) -> subprocess.Comp
 
 def provider_command(provider: str, workspace: Path, prompt: str, read_only: bool) -> tuple[list[str], str]:
     if provider == "codex":
-        if not CODEX_JS or not CODEX_JS.is_file():
+        if CODEX_JS and CODEX_JS.is_file():
+            cli = ["node", str(CODEX_JS)]
+        elif executable := shutil.which("codex"):
+            cli = [executable]
+        else:
             raise FileNotFoundError("Codex CLI package not found; set CODEX_MANAGED_PACKAGE_ROOT or put codex on PATH")
-        cli = ["node", str(CODEX_JS)]
-        version = run(["node", str(CODEX_JS), "--version"], cwd=workspace, timeout=20).stdout.strip()
+        version = run(cli + ["--version"], cwd=workspace, timeout=20).stdout.strip()
         sandbox = "read-only" if read_only else "workspace-write"
         return cli + ["exec", "--json", "--sandbox", sandbox, "--cd", str(workspace), prompt], version
     executable = shutil.which("claude")

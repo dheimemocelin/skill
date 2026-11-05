@@ -6,6 +6,11 @@ description: Manage safe Git workflows, focused commits, CI, code review, securi
 # git-quality
 
 
+## Risk-focused review
+
+When reviewing architecture, public contracts, dependencies or security boundaries, read [Architecture and regression review](../software-engineering/references/design-review.md). The existing Quality Reviewer remains the independent review role.
+
+
 ## Select the requested operation
 
 | Request | Work to perform | Completion evidence |
