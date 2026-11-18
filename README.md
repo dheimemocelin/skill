@@ -12,7 +12,20 @@ Modular skills, agent roles and engineering practices for programming agents: de
 
 You do not need skill names, agent names or JSON plans. The host selects skills from their descriptions; correct selection still needs behavioral validation. For a focused task, use its specialty directly. `engineering-os` helps only when cross-disciplinary coordination adds value. Agents are used only when bounded independent work benefits the task.
 
-## Install in a project
+## Quick install (Claude Code, T3 Code and other Claude Code hosts)
+
+The skills in `skills/` are already in the native `SKILL.md` format; no generator is needed to use them.
+
+1. Copy the skill folders you want into one of:
+   - `<project>/.claude/skills/` — this project only (recommended; commit it so the team shares it), or
+   - `~/.claude/skills/` (Windows: `%USERPROFILE%\.claude\skills\`) — every project on your machine.
+2. Copy whole folders (each skill uses files in its own `references/`). Do not overwrite a folder that already exists; merge it.
+3. Copy [templates/CLAUDE.md](templates/CLAUDE.md) into the project root (or merge it into the existing `CLAUDE.md`) and fill in **Project conventions** — test/lint commands, layout and commit rules make the skills project-specific.
+4. Restart the session. Ask naturally ("fix this bug", "review my staged changes"); skills are selected by their descriptions.
+
+Minimal set for everyday coding: `software-engineering` + `git-quality`. Add the others as needed; every skill works on its own.
+
+## Install in a project (generator, Codex and Claude agents)
 
 The practices and canonical instructions do not depend on an editor or orchestration product. This repository provides Codex and Claude Code adapters; their runtime validation differs, as documented below. Other integrations require their own format and behavior validation; no universal platform compatibility is claimed.
 

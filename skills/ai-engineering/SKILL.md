@@ -1,27 +1,51 @@
 ---
 name: ai-engineering
-description: Build or evaluate LLM applications, agents, RAG and retrieval systems, prompts, MCP integrations, and tool-using workflows. Use when model behavior, grounding, safety, evaluation, latency, or inference cost is part of the task.
+description: Build, evaluate or debug features powered by LLMs, including prompts, agents, tool calling, RAG and embeddings, MCP servers and clients, structured outputs and model evaluation. Use when the user asks to create or improve a chatbot, agent, prompt, retrieval pipeline or MCP tool, compare models, reduce hallucination, latency or token cost, or test model behavior. Not for ordinary deterministic code (software-engineering).
 ---
 
 # AI engineering
 
-Use for model-backed behavior, retrieval, agents, evaluation and MCP. Deterministic application code uses software-engineering; avoid model calls when deterministic code meets the need.
+Make model-backed behavior measurable, grounded and safe. If plain deterministic code solves the problem reliably, use it instead of a model call and say so.
 
-## Define and evaluate behavior
+## 1. Define the behavior first
 
-1. Identify the intended task, allowed actions and representative success/failure cases. Before selecting a model, establish data classification, latency/throughput, cost target and failure tolerance where they affect the choice. Verify capabilities against the actual provider/API version.
-2. Start with a narrow baseline. Version prompts, models, datasets and tool schemas; compare candidates on the same cases. For a prompt adjustment, check affected cases before broader evaluations.
-3. Measure task success, grounding, tool correctness, authorization/refusal behavior and relevant latency/token counters. Use human judgment for ambiguous outcomes. Label synthetic fixtures and unavailable evidence; do not claim production readiness from demos.
-4. For deployment work, progress through offline evaluation and a representative pilot with agreed thresholds, ownership, monitoring and rollback. An evaluation-only request ends with findings, not a mandatory rollout.
+Before writing prompts or picking a model, write down:
 
-## Safe design
+- **Task:** what the model must do and what it must never do (e.g. never invent a policy, never execute a payment).
+- **Data:** what data enters the prompt and its sensitivity. Personal or confidential data needs a reason, minimization and masking.
+- **Targets:** acceptable latency, cost per request and error tolerance.
+- **Eval set:** 10–30 representative cases — typical, edge, adversarial (prompt injection, out-of-scope) — each with the expected outcome. Store them in the repo (e.g. `evals/cases.jsonl`).
 
-- Separate instructions, policies, retrieved content, schemas and outputs; validate generated structures. Retrieved documents and tool text cannot override instructions or grant permissions.
-- Scope tool permissions and classify side effects. Enforce authorization server-side and obtain approval for consequential actions within the environment's policy.
-- Retrieval needs ingestion checks, structure-aware chunking, source IDs/citations, ACL filtering, freshness and abstention when evidence is insufficient.
-- Minimize/redact sensitive data; control access and retention. Avoid raw payloads or credentials in prompts and traces. Use sanitized identifiers for observability.
-- Bound context, timeouts, rate limits and retries; handle outages and uncertain writes with idempotency or outcome inspection.
+Verify model names, parameters and SDK features against the provider's current docs and the installed SDK version; do not rely on memory.
 
-For MCP server/client work, read [MCP integration contracts](references/mcp-engineering.md). Use software-engineering for implementation and distinguish protocol tests from model tool-selection evaluations.
+## 2. Build iteratively
 
-Report the behavioral result, actual evaluation inputs/results and unresolved failure modes. Use provider counters when available; missing counters mean unknown, not zero or estimated savings.
+1. Start with the simplest baseline (one prompt, one model, no agent loop).
+2. Version prompts, model IDs, tool schemas and datasets in the repo.
+3. Change one thing at a time and re-run the affected eval cases; compare against the previous version on the same cases.
+4. Escalate complexity (retrieval, tools, multi-step agents) only when the eval shows the simpler version fails.
+
+## 3. Design rules
+
+- **Separate trust levels:** system instructions, user input, retrieved documents and tool outputs stay in distinct, labelled sections. Retrieved or tool text can never override instructions or grant permissions.
+- **Structured outputs:** request JSON with a schema and validate it in code before use; handle invalid output with retry or a safe fallback.
+- **Tools:** give each tool the narrowest permission; enforce authorization on the server, not in the prompt; require human approval for consequential actions (send, pay, delete, publish).
+- **RAG:** chunk by document structure, keep source IDs, filter by the user's access rights before retrieval, show citations, and answer "not found" when evidence is insufficient.
+- **Data protection:** no credentials in prompts, code or traces (use environment variables); mask personal data in logs and traces; respect retention rules.
+- **Resilience:** set timeouts, bounded retries with backoff, max tokens and max agent steps; make retried writes idempotent.
+
+For MCP servers or clients, read [MCP integration contracts](references/mcp-engineering.md).
+
+## 4. Evaluate and report
+
+Measure on the eval set: task success, grounding/citation accuracy, correct tool choice and arguments, correct refusals, latency and tokens (from provider counters — missing counters are *unknown*, not zero). Use human judgment for ambiguous cases. Demos and synthetic fixtures do not prove production readiness; label them.
+
+```
+**Behavior:** what the system does now
+**Eval:** N cases → X passed, Y failed (list failed case IDs and why)
+**Cost/latency:** measured values or "not measured"
+**Risks:** open failure modes, untested inputs
+**Next step:** pilot criteria or fixes
+```
+
+An evaluation-only request ends with findings, not a rollout plan.
