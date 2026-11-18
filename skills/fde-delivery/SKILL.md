@@ -1,22 +1,52 @@
 ---
 name: fde-delivery
-description: Turn ambiguous stakeholder or field problems into scoped, measurable software delivery. Use when discovery, real-world constraints, integrations, pilots, adoption, or operational handoff matter.
+description: Turn a vague business or operational problem into a scoped, measurable software delivery. Use when the user brings a stakeholder request, a manual process to automate, an integration with an external system or ERP, a pilot or proof of concept, adoption problems, or a handoff to operations. Not for a clearly specified code change (software-engineering).
 ---
 
-# FDE delivery
+# Field delivery
 
-Use for ambiguous stakeholder problems, field constraints, integrations and pilots. A well-defined application fix goes directly to software-engineering.
+Go from "we have a problem" to a small working solution that real users adopt, with a measurable result.
 
-## Discover and scope
+## 1. Discover
 
-Infer from real artifacts where possible: operator, workflow, decision-maker, current workaround, measurable pain, security/privacy boundaries, system owner and adoption constraints. Ask only unresolved questions affecting delivery. Define an acceptance scenario; for a pilot, agree baseline, target, measurement owner/window and go/no-go criteria.
+Use real artifacts first (spreadsheets, screenshots, current process, tickets, system docs) and fill this brief. Ask only for what is missing and blocks delivery.
 
-## Deliver in the actual environment
+```
+Problem: what hurts, in the user's words
+Who: operator (does the work) / decision-maker / system owner
+Today: current workaround and its cost (time, errors, rework)
+Systems: what must be read or written, and who controls access
+Constraints: security, personal data, approvals, deadlines
+Success: one measurable outcome (e.g. "closing takes 1 day instead of 3")
+```
 
-Build the smallest useful end-to-end workflow. Discover integration contracts, permissions, API/network constraints, failure behavior and audit requirements before expanding scope. Pilot with a representative operator, measure task completion and defects, and close the feedback loop.
+## 2. Scope the smallest useful slice
 
-Unavailable operator: label workflow assumptions and the validation dependency. Unavailable API/sandbox: use labeled fixtures and keep live compatibility unverified. Unclear ownership or deployment permission: prepare a reviewable handoff before the affected action. Continue independent work; do not retry an unchanged external blocker indefinitely.
+Write one acceptance scenario in plain language: *"Given …, when the operator …, then …"*. Cut everything not needed for it. For a pilot, agree upfront: baseline, target, who measures, measurement window and the go/no-go rule.
 
-## Handoff
+## 3. Integrate safely
 
-A discovery delivers a bounded problem and acceptance scenario. A pilot delivers measured outcomes and an adoption decision. Operational handoff identifies owner, runbook, support/incident response, fallback/rollback and maintenance cost. Use briefs/diagrams/checklists only when useful. No deployment without approval; do not claim fixture success proves live operation.
+- Discover the real contract of each external system (API docs, sample payloads, rate limits, error behavior, test environment) before building around it.
+- Request access through the official channel; never ask users to share passwords, and never store credentials in code, spreadsheets or chat — use environment variables or the approved secret store.
+- Read-only first; writes to external systems need explicit approval and must be idempotent.
+- Personal data: collect only what the workflow needs, mask it in logs and demos, and confirm who may see it.
+
+## 4. Build and pilot
+
+Build the end-to-end flow for the acceptance scenario. Test it with one representative operator, observe where they hesitate or fail, measure task completion, time and errors, and iterate.
+
+When something is unavailable, keep moving and label it:
+- No operator access → list assumptions to validate.
+- No API or sandbox → use labelled fixtures; live compatibility is *unverified*.
+- Unclear owner or deploy permission → prepare a handoff package and stop before the action.
+Do not retry an unchanged external blocker repeatedly.
+
+## 5. Hand off
+
+| Stage | Deliverable |
+|---|---|
+| Discovery | Filled brief + acceptance scenario + open questions |
+| Pilot | Baseline vs. result, defects found, adoption decision (go / adjust / stop) |
+| Operation | Owner, runbook, support contact, monitoring, rollback, maintenance cost |
+
+Never deploy without approval, and never present fixture success as proof that the live integration works.

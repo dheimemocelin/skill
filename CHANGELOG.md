@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Rewrite all seven skills for direct use: trigger-rich descriptions with explicit "not for" boundaries, numbered workflows, project-convention discovery, concrete checks, good-vs-weak examples and fixed delivery formats; add explicit secret and personal-data rules; make git-quality self-contained with a new code-review reference; add a no-generator quick install and a fill-in project conventions section to the Claude template. Attribution for adapted practices stays in SOURCES.md.
 - Simplify daily operation around natural requests and BUILD/REVIEW/DELIVER; preserve seven skills, three optional agents and the unchanged optional Harness.
 - Move Harness documentation out of the quick start, unify selective routing and document project-scoped installation/update with fresh staging.
 - Consolidate domain guidance, preserve Matt Pocock/Impeccable practices and conditional references, and add natural-request implementation fixtures to the existing behavioral evaluator with independent assertions and native usage counters.

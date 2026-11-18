@@ -1,30 +1,43 @@
 ---
 name: engineering-os
-description: Coordinate multi-stage engineering work across disciplines; use a focused skill or agent directly for narrow tasks.
+description: Coordinate a task that spans several disciplines at once, such as a feature touching backend, database, UI and release, a data pipeline feeding a dashboard, or an AI feature with an API and an interface. Use when the user asks to build or ship something end-to-end, or to resume multi-stage work from an earlier session. For a single-area task, use that specialty skill directly.
 ---
 
 # Engineering OS
 
-Use only for cross-disciplinary work where coordination helps. Ordinary requests go directly to the relevant specialty; users need not name skills or agents. Endpoint changes use software-engineering; retrieval uses ai-engineering; metrics use data-engineering; interfaces use ui-ux-design; pilots use fde-delivery; Git delivery and review use git-quality.
+Use only for cross-disciplinary work where coordination helps; otherwise work directly in one specialty.
 
-## Select context
+## Route
 
-Load only skills needed for the current decision and references whose activation conditions apply. Locate symbols with targeted search, then inspect implementations, callers and tests. Expand the search when evidence warrants it; reuse unchanged reads and existing project tools.
+| Part of the task | Skill |
+|---|---|
+| Code, API, bug, tests | software-engineering |
+| LLM, RAG, agents, MCP | ai-engineering |
+| SQL, pipelines, metrics | data-engineering |
+| Screens, flows, accessibility | ui-ux-design |
+| Unclear field problem, pilot | fde-delivery |
+| Review, commit, PR, release | git-quality |
 
-Skills provide knowledge, not execution permission. The metadata in agents/<role>.md is the canonical agent-to-skill mapping. Default to direct work or one specialist when bounded ownership adds value; verify native adapter availability before dispatch. Agents are optional; never delegate merely to shorten the parent's transcript.
+Load only skills needed for the current step. The metadata in agents/<role>.md is the canonical agent-to-skill mapping. Default to direct work or one specialist; delegate only bounded, independent work.
 
-## BUILD
+## Steps
 
-For resumed work, recover the original goal and corrections; compare claims with current branch, commits, files, and validations. Preserve edits and authorship, and resume pending work only.
+1. **Resume:** for continued work, recover the original goal and user corrections, then compare claims with current branch, commits, files, and validations. Preserve edits and authorship; resume pending work only.
+2. **Plan:** write observable acceptance criteria (input → expected outcome) and an ordered list of slices with the skill for each. Order: data contract → backend → UI → review → delivery.
+3. **Build:** one slice at a time, smallest compatible change, secure defaults, no unrelated edits.
+4. **Review:** focused checks per slice plus the full diff; visual and accessibility checks when UI changed.
+5. **Deliver:**
 
-Understand the domain and existing conventions. Define observable acceptance criteria; plan only as complexity or risk warrants. Implement the smallest compatible slice with explicit contracts, appropriate types and secure defaults. Preserve unrelated changes and avoid premature abstractions.
+```
+**Result:** what works now, per acceptance criterion (met / not met)
+**Checks run:** command → result
+**Not verified / risks:** …
+**Needs approval:** merge, deploy, data change, if any
+```
 
-## REVIEW
+## Guardrails
 
-Run focused checks for changed behavior and risks; inspect the diff. Reuse checks only while relevant code, inputs, dependencies and configuration match. Review critical authorization, persistence and public-contract changes carefully. Apply visual/accessibility review when UI is affected; context savings cannot replace it.
-
-## DELIVER
-
-Report outcome, commands/check scope and results, then unresolved limitations. Keep exit status, failures, errors, skips and truncation visible in summaries; retrieve necessary details rather than guessing. Stop when acceptance evidence is sufficient. Never expose secrets or claim unrun checks.
-
-Human approval is required for consequential external actions, destructive operations, merge, deploy or publication. Reuse existing authorization within its scope; commit only when authorized. The Harness is optional and is not needed for this workflow.
+- Human approval is required for merge, deploy, publication, destructive operations and external side effects.
+- Never expose secrets or claim unrun checks. Keep failures, skips and truncation visible.
+- No real personal data in code, fixtures, logs or prompts.
+- Stop when acceptance criteria are met.
