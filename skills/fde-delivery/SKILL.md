@@ -20,6 +20,17 @@ Constraints: security, personal data, approvals, deadlines
 Success: one measurable outcome (e.g. "closing takes 1 day instead of 3")
 ```
 
+Example, filled:
+
+```
+Problem: "Every month-end we retype 400 supplier invoices from e-mail into the ERP."
+Who: 3 AP clerks / controller / ERP admin team
+Today: ~2 days per closing, ~3% retyping errors found in audit
+Systems: shared mailbox (read), ERP payables API (write, sandbox available)
+Constraints: invoices contain supplier tax IDs; ERP writes need controller approval
+Success: invoice entry under 4 hours per closing, errors under 1%
+```
+
 ## 2. Scope the smallest useful slice
 
 Write one acceptance scenario in plain language: *"Given …, when the operator …, then …"*. Cut everything not needed for it. For a pilot, agree upfront: baseline, target, who measures, measurement window and the go/no-go rule.
@@ -49,4 +60,4 @@ Do not retry an unchanged external blocker repeatedly.
 | Pilot | Baseline vs. result, defects found, adoption decision (go / adjust / stop) |
 | Operation | Owner, runbook, support contact, monitoring, rollback, maintenance cost |
 
-Never deploy without approval, and never present fixture success as proof that the live integration works.
+Never deploy without approval, and never present fixture success as proof that the live integration works. Write deliverables in the user's language.

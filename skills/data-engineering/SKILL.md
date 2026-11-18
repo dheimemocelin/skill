@@ -26,6 +26,16 @@ Check row counts, nulls, duplicates on the key, value ranges, orphan foreign key
 
 **SQL**
 - Check every join for fan-out: compare `COUNT(*)` before and after the join.
+
+```sql
+-- Expect 0 rows: each order must appear once after joining payments
+SELECT o.order_id, COUNT(*) AS n
+FROM orders o
+JOIN payments p ON p.order_id = o.order_id
+GROUP BY o.order_id
+HAVING COUNT(*) > 1;
+```
+
 - Aggregate at the declared grain; never `SUM` a value already repeated by a join.
 - Use CTEs with clear names; comment the business rule next to each filter.
 - For performance issues, read the query plan before rewriting.
@@ -41,6 +51,7 @@ Check row counts, nulls, duplicates on the key, value ranges, orphan foreign key
 - Define each KPI: formula, numerator/denominator, filters, refresh frequency, who can see it.
 - Prefer simple charts that match the question (trend → line, comparison → bar); keep units and scales honest.
 - Separate correlation from causation, and observation from recommendation.
+- When a total looks wrong, bisect it: split by period, unit and source until the difference sits in one slice, then inspect those rows.
 
 ## 4. Reconcile
 
@@ -52,7 +63,7 @@ Recalculate one or two figures by hand from a small sample and compare with the 
 
 ## 5. Data protection
 
-Work with aggregates whenever possible. Do not export, paste or log personal data (names with documents, contact details, salaries, financial or health data); use anonymized or synthetic samples. Credentials for databases come from environment variables or the secret store — never in queries, notebooks or code.
+Follow the applicable data protection law (e.g. LGPD in Brazil) and the organization's policy. Work with aggregates whenever possible. Do not export, paste or log personal data (names with documents, contact details, salaries, financial or health data); use anonymized or synthetic samples. Credentials for databases come from environment variables or the secret store — never in queries, notebooks or code.
 
 ## Deliver
 
@@ -62,3 +73,5 @@ Work with aggregates whenever possible. Do not export, paste or log personal dat
 **Checks:** row counts, duplicates, reconciliation result
 **Limitations:** freshness, provisional parts, exclusions
 ```
+
+Reports, exports and printable dashboards carry a traceability block when the organization requires one: who generated it (name and corporate e-mail), date and time, and the owning area. Put it in the header or footer of each page, or in a "Traceability" sheet in spreadsheets. If any of these is unknown, ask; never invent or leave it blank. Write the delivery in the user's language.

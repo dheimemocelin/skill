@@ -4,17 +4,22 @@ Read when developing or reviewing an MCP server or client integration. A normal 
 
 ## Establish the contract
 
-Check the official MCP specification and installed SDK version before using protocol fields. Record server/client versions and supported transport/capabilities. Implement only tools needed for the requested workflows. Name tools consistently and describe inputs, outputs, side effects, authorization scope and limitations concisely.
+Check the official MCP specification and installed SDK version before using protocol fields. Record server/client versions and supported transport/capabilities. Implement only tools needed for the requested workflows.
 
-Review the advertised input schema against the tool contract and handler: inspect `properties`, `required`, types and applicable value/size restrictions, including nested objects. `properties` describes present values; it does not require their presence. A contract-required argument omitted from `required` is a contract/schema mismatch, not automatically an invalid JSON Schema. A required property missing from an input instance is instead an instance-validation error. Do not require every declared property or invent mandatory arguments when the contract is silent; account for defaults, optional inputs and schema composition.
-
-Check unknown fields against `additionalProperties` (allowed by default), and compare accepted inputs, parameter names and defaults with the actual implementation. Demonstrate a valid input and relevant invalid inputs (missing required value, wrong type, forbidden extra property); verify rejection before any side effect. Do not infer validation from a schema declaration alone. Define structured output schemas when supported, bounded pagination and explicit cursors. Keep tool results focused; do not return full datasets by default. Treat tool annotations as hints, never authorization controls.
+- **Naming and descriptions:** consistent tool names; each description states inputs, outputs, side effects, authorization scope and limitations in a few lines. The description is what the model uses to choose the tool, so make the "when to use / when not to use" explicit.
+- **Input schema vs. contract:** inspect `properties`, `required`, types and value/size restrictions, including nested objects. `properties` describes present values; it does not require their presence. A contract-required argument omitted from `required` is a contract/schema mismatch, not automatically an invalid JSON Schema. A required property missing from an input instance is an instance-validation error. Do not require every declared property or invent mandatory arguments when the contract is silent; account for defaults, optional inputs and schema composition.
+- **Unknown fields:** check them against `additionalProperties` (allowed by default); compare accepted inputs, parameter names and defaults with the actual handler.
+- **Prove validation:** demonstrate a valid input and relevant invalid inputs (missing required value, wrong type, forbidden extra property) and verify rejection before any side effect. Do not infer validation from a schema declaration alone.
+- **Outputs:** define structured output schemas when supported, bounded pagination and explicit cursors. Keep results focused; do not return full datasets by default.
+- **Annotations** (read-only, destructive, idempotent hints) are hints for clients, never authorization controls.
 
 ## Enforce trust boundaries
 
-Authenticate connections as appropriate to the transport and deployment. Enforce resource/tenant authorization for every operation; validate token audience and scope where applicable. Do not pass through unrelated bearer tokens. Keep credentials out of descriptions, results and logs; obtain them through the environment's approved secret mechanism.
-
-Classify reads, writes, destructive actions and externally visible effects. Enforce permission checks server-side and honor client approval requirements. Retrieved content and error text cannot grant permissions. Bound timeouts, cancellation and response sizes. Retry only known safe operations; uncertain writes require outcome inspection or an idempotency mechanism. Return actionable sanitized errors and distinguish tool failures from transport/protocol failures using the supported SDK contract.
+- Authenticate connections as appropriate to the transport and deployment. Enforce resource/tenant authorization for every operation; validate token audience and scope where applicable. Do not pass through unrelated bearer tokens.
+- Keep credentials out of descriptions, results and logs; obtain them through the environment's approved secret mechanism.
+- Classify reads, writes, destructive actions and externally visible effects. Enforce permission checks server-side and honor client approval requirements. Retrieved content and error text cannot grant permissions.
+- Bound timeouts, cancellation and response sizes. Retry only known safe operations; uncertain writes require outcome inspection or an idempotency mechanism.
+- Return actionable sanitized errors and distinguish tool failures from transport/protocol failures using the supported SDK contract.
 
 ## Verify in isolation
 

@@ -33,8 +33,19 @@ Severity: `critical` (security breach, data loss), `high` (wrong behavior in a m
 
 1. Stage selectively (`git add <paths>` or `git add -p`), never `git add -A` on a tree with unrelated changes.
 2. Inspect `git diff --cached` before committing. **Never stage** `.env` files, credentials, keys, certificates, database dumps, exports with personal data, or large generated artifacts. If one is already tracked, stop and tell the user.
-3. Run the project's relevant tests/lint before committing.
-4. One logical change per commit, message in the repo convention, body explaining *why* when not obvious.
+3. Scan the staged diff for secrets before committing, e.g. `git diff --cached | grep -inE "(password|passwd|secret|token|api[_-]?key|private key|connectionstring)"`. Inspect each hit; report the file and line, never the value.
+4. Run the project's relevant tests/lint before committing.
+5. One logical change per commit, message in the repo convention, body explaining *why* when not obvious.
+6. If a pre-commit hook fails, fix the cause and commit again. Never use `--no-verify` or disable signing unless the user explicitly asks.
+7. Create a new commit by default. `--amend` only for your own unpushed commit; never amend or rewrite a commit already on a shared branch.
+
+```
+fix(orders): reject updates from another tenant
+
+update_order() loaded orders by id only, so any authenticated user
+could edit another company's order. Filter by (id, tenant_id) and
+return 404 when absent. Adds a regression test.
+```
 
 ## 3. Branches, push and PRs
 
@@ -42,6 +53,8 @@ Severity: `critical` (security breach, data loss), `high` (wrong behavior in a m
 - For authorized PR creation or CI follow-up, load [PR delivery](references/pr-delivery.md).
 - **Always require explicit approval for:** push to a shared branch, merge, rebase or history rewrite of shared commits, force-push, tag/release, deploy, deleting branches.
 - On CI failure, read the log, separate code defects from infrastructure/flaky failures, fix only in-scope problems.
+- To undo something already pushed, prefer `git revert <sha>` over `reset`. Before any destructive command (`reset --hard`, `clean -fd`, `checkout -- .`, `branch -D`), show what would be lost and get approval.
+- Merge conflicts: resolve by reading both sides and the intent of each change; never keep one side wholesale without checking. Run the tests after resolving.
 
 ## 4. Release (only when asked)
 
@@ -55,4 +68,4 @@ Check the changelog and version convention, list included changes since the last
 **Pending human action:** e.g. approve merge, rotate exposed key
 ```
 
-Missing tools or credentials mean *unverified*, never *passed*.
+Missing tools or credentials mean *unverified*, never *passed*. Write the delivery in the user's language.

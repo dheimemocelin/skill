@@ -35,7 +35,7 @@ From the request and existing product, identify: who uses it, the main task, wha
 
 ## 5. Verify for real
 
-Render and look at the result when a browser or preview is available: check mobile and desktop widths, every state from step 2, keyboard navigation and contrast. Code or DOM assertions alone do not prove visual quality. If rendering is not available, say exactly what was not visually verified.
+Render and look at the result when a browser or preview is available: check 375px, 768px and 1280px widths, every state from step 2, keyboard navigation (Tab through the whole flow) and contrast. Check zoom at 200% and text that is twice as long as the sample. Watch for horizontal scroll, clipped text, overlapping elements and focus that disappears. Code or DOM assertions alone do not prove visual quality. If rendering is not available, say exactly what was not visually verified.
 
 ## Scope discipline
 
@@ -55,4 +55,4 @@ Small request → change only the affected component and its states; do not rede
 **Not verified:** e.g. screen reader, real devices
 ```
 
-Never display real personal data in mockups or screenshots; use realistic synthetic data.
+Never display real personal data in mockups or screenshots; use realistic synthetic data. Write the delivery in the user's language.

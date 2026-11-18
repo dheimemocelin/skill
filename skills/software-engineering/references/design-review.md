@@ -1,6 +1,6 @@
 # Architecture and regression review
 
-Read for a material architecture decision, changed public contract, or risky backend change. For a local fix, use only affected checks. This is guidance for the existing implementation owner and Quality Reviewer, not another role.
+Read for a material architecture decision, changed public contract, or risky backend change. For a local fix, use only affected checks.
 
 ## Decide from constraints
 
@@ -22,6 +22,16 @@ For dependency changes, inspect manifests and lockfile deltas, direct/transitive
 
 ## Evidence
 
-Report actionable findings with location, failure scenario, impact, evidence and smallest useful correction. Distinguish confirmed defects, conditional concerns and style suggestions. Preserve the existing review severity and round limits. Report inspected scope, tests actually run and missing integration/security evidence. No findings is a valid outcome.
+Report actionable findings with location, failure scenario, impact, evidence and smallest useful correction. Distinguish confirmed defects, conditional concerns and style suggestions. Report inspected scope, tests actually run and missing integration/security evidence. No findings is a valid outcome.
+
+For a design decision, answer in this shape:
+
+```
+**Decision:** what is being decided and the requirement driving it
+**Options:** current approach / smallest alternative / larger alternative — trade-offs each
+**Recommendation:** one option and why
+**Rollback:** how to undo it
+**Revisit when:** the observation that would prove the choice wrong
+```
 
 These independently written procedures were informed by the selective AI Templates audit in the source repository (`docs/ai-templates-audit.md`); no upstream scripts are required.

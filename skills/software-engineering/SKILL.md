@@ -24,6 +24,9 @@ Project rules override this skill whenever they conflict.
 | **Bug** | Reproduce → write a failing test or exact repro command → find the cause → fix narrowly → show the test now passes → run the related suite. |
 | **Feature** | Write 2–5 acceptance examples (input → expected result, including one edge and one error case) → implement one end-to-end slice → cover the examples with tests. |
 | **Refactor** | Confirm existing tests cover the behavior (add characterization tests if not) → change in small steps → tests stay green after each step. Behavior must not change. |
+| **Bug that won't reproduce** | Collect exact inputs, environment, versions and logs around the failure time → compare with a working case → add targeted logging or a test at the suspected boundary. Do not ship a speculative fix as if it were confirmed. |
+| **Flaky test** | Run it repeatedly in isolation and in the suite; look for time, order, randomness, network or shared state. Fix the cause; never just add retries or sleeps. |
+| **Performance** | Measure first (profiler, query plan, timing with realistic data) → fix the largest measured cost → measure again and report before/after numbers. |
 | **Design question** | Read [design review](references/design-review.md) and answer with options, trade-offs and a recommendation. No code unless asked. |
 | **Review only** | Report findings (format in section 4). Do not edit files unless asked. |
 
@@ -32,6 +35,8 @@ Project rules override this skill whenever they conflict.
 - Search for the symbol, then read its implementation, **callers** and **tests** before editing. A change without reading callers is a guess.
 - Separate what you observed (error text, failing output, line numbers) from hypotheses. Confirm or kill each hypothesis with one focused check.
 - Ask the user only when the answer changes the implementation (e.g. two valid business rules). Otherwise choose the conservative option and state it.
+- **Stuck rule:** after three hypotheses fail, stop changing code. Report what was observed, what was ruled out and the next experiment, instead of piling up guesses.
+- If the project has no tests for the area, add the smallest test harness the stack already supports; if that is not possible, give an exact manual reproduction and label the result *manually verified*.
 
 ## 3. Build rules
 
